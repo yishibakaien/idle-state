@@ -1,0 +1,16 @@
+{
+  "name": "idle-state",
+  "version": "1.0.0",
+  "description": "tell if browser on idle state",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "browser",
+    "idle",
+    "state"
+  ],
+  "author": "cloud-cb",
+  "license": "MIT"
+}
