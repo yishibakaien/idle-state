@@ -4,7 +4,9 @@
   "description": "tell if browser on idle state",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
   },
   "keywords": [
     "browser",
@@ -12,5 +14,11 @@
     "state"
   ],
   "author": "cloud-cb",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "rollup": "^2.53.2",
+    "rollup-plugin-babel": "^4.4.0"
+  }
 }
