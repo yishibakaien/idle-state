@@ -1,4 +1,3 @@
-export default function log(str) {
-  const copy = `${str} hello`
-  console.log(copy)
-}
+import Idle from './idleState'
+
+export default Idle
