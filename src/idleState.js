@@ -1,14 +1,3 @@
-const events = [
-  'scroll',
-  'mousedown',
-  'mousemove',
-  'mousewheel',
-  'keydown',
-  'touchmove',
-  'touchstart',
-  'wheel',
-]
-
 const STATE_INITIAL = 0
 const STATE_START = 1
 const STATE_STOP = 2

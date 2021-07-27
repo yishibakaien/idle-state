@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
 </head>
-<body>
+<body style="height: 100vh;">
+  <button onclick="pause()">pause</button>
+  <button onclick="resume()">resume</button>
+  <button onclick="dispose()">dispose</button>
   <script src="/dist/index.js"></script>
   <script>
     const tasks = Array.from({ length: 5 }).map((_, i) => {
@@ -20,11 +23,24 @@
       }
     })
 
-    const taskQueue = new idle(
-      tasks
-    )
-    console.log(taskQueue)
-    taskQueue.start()
+    // const taskQueue = new idle(
+    //   tasks
+    // )
+    // console.log(taskQueue)
+    // taskQueue.start()
+    const a = new idle(() => {
+      console.log('haha')
+    }, {loop: true})
+
+    function pause() {
+      a.pause()
+    }
+    function resume() {
+      a.resume()
+    }
+    function dispose() {
+      a.dispose()
+    }
   </script>
 </body>
 </html>
