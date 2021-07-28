@@ -1,7 +1,7 @@
 const events = [
   'scroll',
   'mousedown',
-  'mousemove',
+  // 'mousemove',
   'mousewheel',
   'keydown',
   'touchmove',
@@ -10,12 +10,9 @@ const events = [
   'click',
 ]
 
-// const STATUS_INITIAL = 0
 const STATUS_START = 1
 const STATUS_PAUSE = 2
 const STATUS_STOP = 3
-
-let i = 0
 
 export default class Detector {
   timer = null
@@ -31,7 +28,13 @@ export default class Detector {
       target: document.body,
       timeout: 1000,
       loop: false,
+      enableMousemove: false,
       ...options,
+    }
+
+    // mousemove events are frequently triggered in the broswer
+    if (options.enableMousemove) {
+      events.push('mousemove')
     }
 
     const element = this.options.target
@@ -45,7 +48,7 @@ export default class Detector {
 
   run() {
     const { callback, loop } = this.options
-    console.warn('run: ', `isIdle--${this.isIdle}, status--${this.status}`)
+    // console.warn('run: ', `isIdle--${this.isIdle}, status--${this.status}`)
     if (this.status === STATUS_START) {
       callback()
       if (loop) {
@@ -55,7 +58,9 @@ export default class Detector {
   }
 
   pause() {
-    this.status = STATUS_PAUSE
+    if (this.status === STATUS_START) {
+      this.status = STATUS_PAUSE
+    }
   }
 
   resume() {
@@ -74,7 +79,7 @@ export default class Detector {
 
   start() {
     this.clearTimer()
-    console.error(`start: ${++i}, isIdle--${this.isIdle}`)
+    // console.error(`start: ${++i}, isIdle--${this.isIdle}`)
     this.timer = setTimeout(() => {
       this.run()
     }, this.options.timeout)
@@ -96,6 +101,10 @@ export default class Detector {
 
   destroy(...args) {
     this.dispose.apply(this, args)
+  }
+
+  timeout(timeout) {
+    this.options.timeout = timeout
   }
 
   loop(value) {
