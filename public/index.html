@@ -30,9 +30,14 @@
     // )
     // console.log(taskQueue)
     // taskQueue.start()
-    const a = new idle(() => {
-      console.log('do task')
-    }, {loop: true, timeout: 1000})
+    const a = idle(() => {
+      console.log('do task0')
+    }, {
+      loop: true,
+      timeout: 1000,
+      enableMousemove: false,
+      tasks: [() => console.log('do task1'), () => console.log('do task2')]
+    })
 
     function pause() {
       a.pause()

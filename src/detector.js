@@ -14,26 +14,34 @@ const STATUS_START = 1
 const STATUS_PAUSE = 2
 const STATUS_STOP = 3
 
-export default class Detector {
+const isFunction = (fn) => typeof fn === 'function'
+const doCallback = (callback) => isFunction(callback) && callback()
+const noop = () => {}
+
+class Detector {
   timer = null
-  isIdle = false
   status = STATUS_START
+  currentTaskIndex = 0
 
-  constructor(callback, options = {}) {
-    if (typeof callback === 'function') {
-      options.callback = callback
-    }
-
+  constructor(task, options = {}) {
     this.options = {
       target: document.body,
       timeout: 1000,
       loop: false,
       enableMousemove: false,
+      tasks: [],
+      onStop: noop,
+      onPause: noop,
+      onResume: noop,
       ...options,
     }
 
+    if (isFunction(task)) {
+      this.options.tasks = [task].concat(this.options.tasks)
+    }
+
     // mousemove events are frequently triggered in the broswer
-    if (options.enableMousemove) {
+    if (this.options.enableMousemove) {
       events.push('mousemove')
     }
 
@@ -47,25 +55,50 @@ export default class Detector {
   }
 
   run() {
-    const { callback, loop } = this.options
+    const { tasks, loop } = this.options
     // console.warn('run: ', `isIdle--${this.isIdle}, status--${this.status}`)
-    if (this.status === STATUS_START) {
-      callback()
-      if (loop) {
-        this.start()
-      }
+    if (this.status !== STATUS_START) {
+      return
+    }
+
+    if (!tasks.length) {
+      this.dispose()
+    }
+
+    const isLastTask = this.currentTaskIndex === tasks.length - 1
+
+    const task = tasks[this.currentTaskIndex]
+
+    task()
+
+    if (loop && isLastTask) {
+      this.currentTaskIndex = 0
+      this.start()
+    }
+
+    if (!loop && isLastTask) {
+      this.dispose()
+    }
+
+    if (!isLastTask) {
+      this.currentTaskIndex++
+      this.start()
     }
   }
 
-  pause() {
+  pause(cb) {
     if (this.status === STATUS_START) {
+      const callback = cb || this.options.onPause
       this.status = STATUS_PAUSE
+      doCallback(callback)
     }
   }
 
-  resume() {
+  resume(cb) {
     if (this.status === STATUS_PAUSE) {
       this.status = STATUS_START
+      const callback = cb || this.options.onResume
+      doCallback(callback)
       this.start()
     }
   }
@@ -85,14 +118,15 @@ export default class Detector {
     }, this.options.timeout)
   }
 
-  dispose(fn) {
+  dispose(cb) {
     this.status = STATUS_STOP
     this.clearTimer()
     const element = this.options.target
     events.forEach((evt) => {
       element.removeEventListener(evt, this.eventHandler)
     })
-    typeof fn === 'function' && fn()
+    const callback = cb || this.options.onStop
+    doCallback(callback)
   }
 
   stop(...args) {
@@ -110,4 +144,8 @@ export default class Detector {
   loop(value) {
     this.options.loop = value
   }
+}
+
+export default function (...args) {
+  return new Detector(...args)
 }
