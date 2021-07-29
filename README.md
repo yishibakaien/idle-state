@@ -72,14 +72,14 @@ idle(task1, { tasks: [task2] })
 The `idle` function tasks two arguments
 
 - `callback` - can be a function or function-array
-  - `[Function]` - Considered a single task
-  - `[Function-array]` - Considered a tasks-array
-- `options [Object]` - Configuration of how task running
-  - `target [Element]` - To watch this `target` is in idle state
-  - `timeout [Number]` - Interval of task running
-  - `loop [Boolean]` - Should task(s) running loopy
-  - `enableMousemove [Boolean]` - Should detect mousemove event
-  - `tasks [Function-array]` - Tasks-array
+  - `[Function]` - considered a single task
+  - `[Function-array]` - considered a tasks-array
+- `options [Object]` - configuration of how task running
+  - `target [Element]` - to watch `target` is in idle state
+  - `tasks [Function-array]` - tasks-array
+  - `timeout [Number]` - interval of task running
+  - `loop [Boolean]` - should task(s) running loopy
+  - `enableMousemove [Boolean]` - should detect mousemove event
 
 # methods
 
@@ -88,7 +88,7 @@ you can get an instance from `idle()` function
 ```js
 import idle from 'idle-state'
 
-const instance = idle(() => console.log('do task.'))
+const instance = idle(() => {})
 ```
 
 `instance`
@@ -156,7 +156,7 @@ instance.loop(true)
   - `onPause` - `noop`
   - `onResume` - `noop`
 
-callback passed by `methods` has a higher priority than options
+the callback passed by `methods` ( such as `pause(callback)` ) has a higher priority than options
 
 ```js
 const noop = () => {}
