@@ -120,7 +120,7 @@ const instance = idle(() => {})
 - `.timeout(time)` - set the `options.timeout` whitch is the tasks running interval (in milliseconds)
 - `.loop(boolean)` - set the `options.loop`
 
-> _the `callback` passed by `methods` ( such as `pause(callback)` ) has a higher priority than `options` ( such as `options.onPause` )_
+> **the `callback` passed by `methods` ( such as `pause(callback)` ) has a higher priority than `options` ( such as `options.onPause` )**
 
 `pause(callback)`
 
