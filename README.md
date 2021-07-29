@@ -165,3 +165,15 @@ instance.timeout(2000)
 ```js
 instance.loop(true)
 ```
+
+# demo
+
+```shell
+npm run dev
+```
+
+# build
+
+```shell
+npm run build
+```
