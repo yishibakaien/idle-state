@@ -11,7 +11,6 @@
   <button onclick="resume()">resume</button>
   <button onclick="dispose()">dispose</button>
   <script src="/dist/index.js"></script>
-  <script src="/dist/idle-timeout.js"></script>
   <!-- <script src="/src/detector.js"></script> -->
   <script>
     // const tasks = Array.from({ length: 5 }).map((_, i) => {
@@ -35,7 +34,7 @@
     }, {
       loop: true,
       timeout: 1000,
-      enableMousemove: false,
+      enableMousemove: true,
       tasks: [() => console.log('do task1'), () => console.log('do task2')]
     })
 

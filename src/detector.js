@@ -1,29 +1,54 @@
-const events = [
-  'scroll',
-  'mousedown',
-  // 'mousemove',
-  'mousewheel',
-  'keydown',
-  'touchmove',
-  'touchstart',
-  'wheel',
-  'click',
-]
-
 const STATUS_START = 1
 const STATUS_PAUSE = 2
 const STATUS_STOP = 3
 
 const isFunction = (fn) => typeof fn === 'function'
-const doCallback = (callback) => isFunction(callback) && callback()
+const isObject = (obj) =>
+  Object.prototype.toString.call(obj) === '[object Object]'
+const next = (callback) => isFunction(callback) && callback()
 const noop = () => {}
 
 class Detector {
+  static events = [
+    'scroll',
+    'mousedown',
+    'mousewheel',
+    'keydown',
+    'touchmove',
+    'touchstart',
+    'wheel',
+    'click',
+    // 'mousemove',
+  ]
+
   timer = null
   status = STATUS_START
   currentTaskIndex = 0
 
+  eventHandler = this.start.bind(this)
+
   constructor(task, options = {}) {
+    if (isObject(task)) {
+      Object.assign(options, task)
+    }
+
+    if (Array.isArray(task)) {
+      if (Array.isArray(options.tasks)) {
+        options.tasks = task.concat(options.tasks)
+      } else {
+        options.tasks = task
+      }
+    }
+
+    // transform all tasks to a task array
+    if (isFunction(task)) {
+      if (Array.isArray(options.tasks)) {
+        options.tasks = [task].concat(options.tasks)
+      } else {
+        options.tasks = [task]
+      }
+    }
+
     this.options = {
       target: document.body,
       timeout: 1000,
@@ -36,27 +61,27 @@ class Detector {
       ...options,
     }
 
-    if (isFunction(task)) {
-      this.options.tasks = [task].concat(this.options.tasks)
-    }
-
-    // mousemove events are frequently triggered in the broswer
+    /**
+     * mousemove events are frequently triggered in the browser,
+     * so put it configurable
+     */
     if (this.options.enableMousemove) {
-      events.push('mousemove')
+      Detector.events.push('mousemove')
     }
 
     const element = this.options.target
-    this.eventHandler = this.start.bind(this)
-    events.forEach((event) => {
+
+    Detector.events.forEach((event) => {
       element.addEventListener(event, this.eventHandler)
     })
 
     this.start()
   }
 
+  // controller of running tasks
   run() {
     const { tasks, loop } = this.options
-    // console.warn('run: ', `isIdle--${this.isIdle}, status--${this.status}`)
+
     if (this.status !== STATUS_START) {
       return
     }
@@ -69,7 +94,7 @@ class Detector {
 
     const task = tasks[this.currentTaskIndex]
 
-    task()
+    next(task)
 
     if (loop && isLastTask) {
       this.currentTaskIndex = 0
@@ -86,19 +111,29 @@ class Detector {
     }
   }
 
+  /**
+   * pause running tasks
+   * callback passed by this has a higher priority than options
+   * @param {Function} cb
+   */
   pause(cb) {
     if (this.status === STATUS_START) {
-      const callback = cb || this.options.onPause
       this.status = STATUS_PAUSE
-      doCallback(callback)
+      const callback = cb || this.options.onPause
+      next(callback)
     }
   }
 
+  /**
+   * resume paused tasks
+   * callback passed by this has a higher priority than options
+   * @param {Function} cb
+   */
   resume(cb) {
     if (this.status === STATUS_PAUSE) {
       this.status = STATUS_START
       const callback = cb || this.options.onResume
-      doCallback(callback)
+      next(callback)
       this.start()
     }
   }
@@ -110,37 +145,56 @@ class Detector {
     }
   }
 
+  // start running tasks
   start() {
     this.clearTimer()
-    // console.error(`start: ${++i}, isIdle--${this.isIdle}`)
     this.timer = setTimeout(() => {
       this.run()
     }, this.options.timeout)
   }
 
+  // dispose the resource & remove events handler
   dispose(cb) {
     this.status = STATUS_STOP
     this.clearTimer()
     const element = this.options.target
-    events.forEach((evt) => {
+    Detector.events.forEach((evt) => {
       element.removeEventListener(evt, this.eventHandler)
     })
     const callback = cb || this.options.onStop
-    doCallback(callback)
+    next(callback)
   }
 
+  // convenience options for `dispose` API
   stop(...args) {
     this.dispose.apply(this, args)
   }
 
+  // convenience options for `dispose` API
   destroy(...args) {
     this.dispose.apply(this, args)
   }
 
+  // push a task
+  push(task) {
+    if (isFunction(task)) {
+      this.options.tasks.push(task)
+    }
+  }
+
+  // set new tasks array for this.options
+  setTasks(tasks) {
+    if (Array(tasks)) {
+      this.options.tasks = tasks
+    }
+  }
+
+  // set tasks running interval
   timeout(timeout) {
     this.options.timeout = timeout
   }
 
+  // set loop option
   loop(value) {
     this.options.loop = value
   }
