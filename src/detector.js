@@ -55,7 +55,7 @@ class Detector {
       loop: false,
       enableMousemove: false,
       tasks: [],
-      onStop: noop,
+      onDispose: noop,
       onPause: noop,
       onResume: noop,
       ...options,
@@ -161,7 +161,7 @@ class Detector {
     Detector.events.forEach((evt) => {
       element.removeEventListener(evt, this.eventHandler)
     })
-    const callback = cb || this.options.onStop
+    const callback = cb || this.options.onDispose
     next(callback)
   }
 

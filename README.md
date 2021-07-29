@@ -80,6 +80,26 @@ The `idle` function tasks two arguments
   - `timeout [Number]` - interval of task running
   - `loop [Boolean]` - should task(s) running loopy
   - `enableMousemove [Boolean]` - should detect mousemove event
+  - `onPause [Function]` - called on tasks pause
+  - `onResume` - called on tasks resume
+  - `onDispose` - called on tasks dispose
+
+# options default value
+
+```js
+const noop = () => {}
+
+const defaultOptions = {
+  target: document.body,
+  timeout: 1000,
+  loop: false,
+  enableMousemove: false,
+  tasks: [],
+  onPause: noop,
+  onResume: noop,
+  onDispose: noop,
+}
+```
 
 # methods
 
@@ -99,6 +119,8 @@ const instance = idle(() => {})
 - `.push(task-function)` - push a task in current tasks-array
 - `.timeout(time)` - set the `options.timeout` whitch is the tasks running interval (in milliseconds)
 - `.loop(boolean)` - set the `options.loop`
+
+> _the `callback` passed by `methods` ( such as `pause(callback)` ) has a higher priority than `options` ( such as `options.onPause` )_
 
 `pause(callback)`
 
@@ -142,33 +164,4 @@ instance.timeout(2000)
 
 ```js
 instance.loop(true)
-```
-
-# options default value
-
-- `options`
-  - `target` - `document.body`
-  - `timeout` - `1000`
-  - `loop` - `true`
-  - `tasks` - `[]`
-  - `enableMousemove` - `false`
-  - `onStop` - `noop`
-  - `onPause` - `noop`
-  - `onResume` - `noop`
-
-the callback passed by `methods` ( such as `pause(callback)` ) has a higher priority than options
-
-```js
-const noop = () => {}
-
-const defaultOptions = {
-  target: document.body,
-  timeout: 1000,
-  loop: false,
-  enableMousemove: false,
-  tasks: [],
-  onStop: noop,
-  onPause: noop,
-  onResume: noop,
-}
 ```
