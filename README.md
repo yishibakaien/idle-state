@@ -71,7 +71,7 @@ idle(task1, { tasks: [task2] })
 
 The `idle` function tasks two arguments
 
-- `callback` -
+- `callback` - can be a function or function-array
   - `[Function]` - Considered a single task
   - `[Function-array]` - Considered a tasks-array
 - `options [Object]` - Configuration of how task running
@@ -91,7 +91,16 @@ import idle from 'idle-state'
 const instance = idle(() => console.log('do task.'))
 ```
 
-`pause(callback)` - pause tasks running
+`instance`
+
+- `.pause(callback)` - pause tasks running
+- `.resume(callback)` - resume paused tasks
+- `.dispose(callback)` - dispose the resource & remove events handler
+- `.push(task-function)` - push a task in current tasks-array
+- `.timeout(time)` - set the `options.timeout` whitch is the tasks running interval (in milliseconds)
+- `.loop(boolean)` - set the `options.loop`
+
+`pause(callback)`
 
 ```js
 instance.pause(() => console.log('task paused.'))
@@ -99,7 +108,7 @@ instance.pause(() => console.log('task paused.'))
 instnce.pause()
 ```
 
-`resume(callback)` - resume paused tasks
+`resume(callback)`
 
 ```js
 instance.resume(() => console.log('paused task re-running.'))
@@ -107,7 +116,7 @@ instance.resume(() => console.log('paused task re-running.'))
 instance.resume()
 ```
 
-`dispose(callback)` - dispose the resource & remove events handler
+`dispose(callback)`
 
 ```js
 instance.dispose(() => console.log('tasks stoped.'))
@@ -115,20 +124,21 @@ instance.dispose(() => console.log('tasks stoped.'))
 instance.dispose()
 ```
 
-`push(task)` - push a task in current tasks-array
+`push(task)`
 
 ```js
 const task = () => console.log('I am a task.')
+// task should be a function
 instance.push(task)
 ```
 
-`timeout(time)` - set the `options.timeout` whitch is the tasks running interval (in milliseconds)
+`timeout(time)`
 
 ```js
 instance.timeout(2000)
 ```
 
-`loop(boolean)` - set the `options.loop` taks running should be looped
+`loop(boolean)`
 
 ```js
 instance.loop(true)
