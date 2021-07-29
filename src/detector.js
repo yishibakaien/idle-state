@@ -183,11 +183,11 @@ class Detector {
   }
 
   // set new tasks-array for `this.options`
-  setTasks(tasks) {
-    if (Array(tasks)) {
-      this.options.tasks = tasks
-    }
-  }
+  // setTasks(tasks) {
+  //   if (Array(tasks)) {
+  //     this.options.tasks = tasks
+  //   }
+  // }
 
   // set tasks running interval
   timeout(timeout) {
