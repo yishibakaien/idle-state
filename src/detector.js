@@ -182,7 +182,7 @@ class Detector {
     }
   }
 
-  // set new tasks array for this.options
+  // set new tasks-array for `this.options`
   setTasks(tasks) {
     if (Array(tasks)) {
       this.options.tasks = tasks
