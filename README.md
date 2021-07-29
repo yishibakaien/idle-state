@@ -45,7 +45,7 @@ import idle from 'idle-state'
 const task1 = () => console.log('do task1.')
 const task2 = () => console.log('do task2.')
 
-// tasks array
+// tasks-array
 idle([task1, task2])
 ```
 
@@ -64,7 +64,7 @@ idle({
 
 // both callback & config
 idle(task1, { tasks: [task2] })
-// actually task1 & task2 will be converted to an task-array [task1, task2]
+// actually task1 & task2 will be converted to an tasks-array [task1, task2]
 ```
 
 # document
@@ -95,37 +95,43 @@ const instance = idle(() => console.log('do task.'))
 
 ```js
 instance.pause(() => console.log('task paused.'))
+// or just pause
+instnce.pause()
 ```
 
 `resume(callback)` - resume paused tasks
 
 ```js
 instance.resume(() => console.log('paused task re-running.'))
+// or just resume
+instance.resume()
 ```
 
 `dispose(callback)` - dispose the resource & remove events handler
 
 ```js
-instance.dispose('tasks stoped')
+instance.dispose(() => console.log('tasks stoped.'))
+// or just dispose
+instance.dispose()
 ```
 
-`push(task)` - push a task in current tasks array
+`push(task)` - push a task in current tasks-array
 
 ```js
 const task = () => console.log('I am a task.')
 instance.push(task)
 ```
 
-`timeout(time)` - set the timeout (in milliseconds)
+`timeout(time)` - set the `options.timeout` whitch is the tasks running interval (in milliseconds)
 
 ```js
 instance.timeout(2000)
 ```
 
-`loop(boolean)` - set taks should be looped
+`loop(boolean)` - set the `options.loop` taks running should be looped
 
 ```js
-instance.loop(false)
+instance.loop(true)
 ```
 
 # options default value
