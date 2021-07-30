@@ -13,7 +13,10 @@ const config = {
   output: {
     format: 'umd',
     sourcemap: true,
-    file: path.resolve(__dirname, `dist/index.${isProduction ? 'min.' : ''}js`),
+    file: path.resolve(
+      __dirname,
+      `dist/idle-state.${isProduction ? 'min.' : ''}js`
+    ),
     name: 'idle',
   },
   plugins: [

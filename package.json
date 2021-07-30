@@ -1,8 +1,9 @@
 {
   "name": "idle-state",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Running some tasks while browser idling",
-  "main": "./dist/index.min.js",
+  "main": "./dist/idle-state.min.js",
+  "files": ["dist"],
   "scripts": {
     "build": "cross-env NODE_ENV=production rollup -c",
     "dev": "cross-env NODE_ENV=development rollup -c -w"

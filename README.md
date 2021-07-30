@@ -81,10 +81,10 @@ The `idle` function tasks two arguments
   - `interval [Number]` - interval of task runing
   - `loop [Boolean]` - should task(s) runs loopy
   - `enableMousemove [Boolean]` - should detect mousemove event. Mousemove events are frequently triggered in the browser, so put it configurable
-  - `events [EventName-array]` - name of events, which would be concated with default value
+  - `events [EventName-array]` - name of events, which would be concated(merged) with default value
   - `onPause [Function]` - called on tasks pause
-  - `onResume` - called on tasks resume
-  - `onDispose` - called on tasks dispose
+  - `onResume [Function]` - called on tasks resume
+  - `onDispose [Function]` - called on tasks dispose
 
 # options default value
 
@@ -127,31 +127,34 @@ const instance = idle(() => {})
 
 > **the `callback` passed by `methods` ( such as `pause(callback)` ) has a higher priority than `options` ( such as `options.onPause` )**
 
-`pause(callback)`
+`.pause(callback)`
 
 ```js
-instance.pause(() => console.log('task paused.'))
-// or just pause
 instnce.pause()
+
+// with callback
+instance.pause(() => console.log('task paused.'))
 ```
 
-`resume(callback)`
+`.resume(callback)`
 
 ```js
-instance.resume(() => console.log('paused task re-running.'))
-// or just resume
 instance.resume()
+
+// with callback
+instance.resume(() => console.log('paused task re-running.'))
 ```
 
-`dispose(callback)`
+`.dispose(callback)`
 
 ```js
-instance.dispose(() => console.log('tasks stoped.'))
-// or just dispose
 instance.dispose()
+
+// with callback
+instance.dispose(() => console.log('tasks stoped.'))
 ```
 
-`push(task)`
+`.push(task)`
 
 ```js
 const task = () => console.log('I am a task.')
@@ -159,13 +162,19 @@ const task = () => console.log('I am a task.')
 instance.push(task)
 ```
 
-`timeout(time)`
+`.timeout(time)`
 
 ```js
 instance.timeout(2000)
 ```
 
-`loop(boolean)`
+`.interval(time)`
+
+```js
+instance.interval(2000)
+```
+
+`.loop(boolean)`
 
 ```js
 instance.loop(true)
@@ -181,6 +190,9 @@ const instance = idle(() => {})
 // you can get current state by
 console.log(instance.isIdle) // => get a Boolean value
 ```
+
+it will go false while browser trigger event [`scroll`, `keydown`, `touchmove`, `touchstart`, `click`] by default, you can config `options.events`,
+which will merge default `options.events`
 
 # demo
 
