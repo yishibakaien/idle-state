@@ -1,7 +1,7 @@
 {
   "name": "idle-state",
-  "version": "1.0.0",
-  "description": "tell if browser on idle state",
+  "version": "0.1.0",
+  "description": "Running some tasks while browser idling",
   "main": "./dist/index.min.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production rollup -c",
