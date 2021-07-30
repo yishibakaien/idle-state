@@ -77,7 +77,8 @@ The `idle` function tasks two arguments
 - `options [Object]` - configuration of how task running
   - `target [Element]` - the `target` would be watched, which determines whether the state is idling
   - `tasks [Function-array]` - tasks-array
-  - `timeout [Number]` - interval of task running
+  - `timeout [Number]` - the duration after the browser enters the idle state, at which time the task begins to execute
+  - `interval [Number]` - interval of task runing
   - `loop [Boolean]` - should task(s) runs loopy
   - `enableMousemove [Boolean]` - should detect mousemove event
   - `onPause [Function]` - called on tasks pause
@@ -91,10 +92,11 @@ const noop = () => {}
 
 const defaultOptions = {
   target: document.body,
-  timeout: 1000,
+  tasks: [],
+  timeout: 3000,
+  interval: 1000,
   loop: false,
   enableMousemove: false,
-  tasks: [],
   onPause: noop,
   onResume: noop,
   onDispose: noop,
@@ -117,8 +119,9 @@ const instance = idle(() => {})
 - `.resume(callback)` - resume paused tasks
 - `.dispose(callback)` - dispose the resource & remove events handler
 - `.push(task-function)` - push a task in current tasks-array
-- `.timeout(time)` - set the `options.timeout` the tasks running interval (in milliseconds)
-- `.loop(boolean)` - set the `options.loop` should the tasks runs loopy
+- `.timeout(time)` - set `options.timeout` the duration after the browser enters the idle state, at which time the task begins to execute (in milliseconds)
+- `.interval(time)` - set `options.interval` the tasks running interval (in milliseconds)
+- `.loop(boolean)` - set `options.loop` should the tasks runs loopy
 
 > **the `callback` passed by `methods` ( such as `pause(callback)` ) has a higher priority than `options` ( such as `options.onPause` )**
 
@@ -164,6 +167,17 @@ instance.timeout(2000)
 
 ```js
 instance.loop(true)
+```
+
+# get current idle state
+
+```js
+import idle from 'idle-state'
+
+const instance = idle(() => {})
+
+// you can get current state by
+console.log(instance.isIdle) // => get a Boolean value
 ```
 
 # demo

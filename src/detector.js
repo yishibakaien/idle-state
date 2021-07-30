@@ -21,11 +21,12 @@ class Detector {
     // 'mousemove',
   ]
 
+  isIdle = false
   timer = null
   status = STATUS_START
   currentTaskIndex = 0
 
-  eventHandler = this.start.bind(this)
+  eventHandler = this.eventHandler.bind(this)
 
   constructor(task, options = {}) {
     if (isObject(task)) {
@@ -51,7 +52,8 @@ class Detector {
 
     this.options = {
       target: document.body,
-      timeout: 1000,
+      timeout: 3000,
+      interval: 1000,
       loop: false,
       enableMousemove: false,
       tasks: [],
@@ -145,12 +147,23 @@ class Detector {
     }
   }
 
+  eventHandler() {
+    this.isIdle = false
+    this.start()
+  }
+
   // start running tasks
   start() {
     this.clearTimer()
+
+    const { interval, timeout } = this.options
+
+    const time = this.isIdle ? interval : timeout
+
     this.timer = setTimeout(() => {
+      this.isIdle = true
       this.run()
-    }, this.options.timeout)
+    }, time)
   }
 
   // dispose the resource & remove events handler
@@ -182,16 +195,14 @@ class Detector {
     }
   }
 
-  // set new tasks-array for `this.options`
-  // setTasks(tasks) {
-  //   if (Array(tasks)) {
-  //     this.options.tasks = tasks
-  //   }
-  // }
-
-  // set tasks running interval
+  // set tasks running timeout
   timeout(timeout) {
     this.options.timeout = timeout
+  }
+
+  // set task running interval
+  interval(interval) {
+    this.options.interval = interval
   }
 
   // set loop option

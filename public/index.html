@@ -10,6 +10,7 @@
   <button onclick="pause()">pause</button>
   <button onclick="resume()">resume</button>
   <button onclick="dispose()">dispose</button>
+  <button onclick="getIdleState()">getIdleState</button>
   <script src="/dist/index.js"></script>
   <!-- <script src="/src/detector.js"></script> -->
   <script>
@@ -33,7 +34,8 @@
       console.log('do task0')
     }, {
       loop: true,
-      timeout: 1000,
+      timeout: 2000,
+      interval: 500,
       enableMousemove: true,
       tasks: [() => console.log('do task1'), () => console.log('do task2')]
     })
@@ -46,6 +48,9 @@
     }
     function dispose() {
       a.destroy(() => console.log('dispose'))
+    }
+    function getIdleState() {
+      console.log(a.isIdle)
     }
   </script>
 </body>
