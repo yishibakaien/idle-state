@@ -2,9 +2,8 @@
   "name": "idle-state",
   "version": "1.0.0",
   "description": "tell if browser on idle state",
-  "main": "index.js",
+  "main": "./dist/index.min.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cross-env NODE_ENV=production rollup -c",
     "dev": "cross-env NODE_ENV=development rollup -c -w"
   },

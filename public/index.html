@@ -12,31 +12,15 @@
   <button onclick="dispose()">dispose</button>
   <button onclick="getIdleState()">getIdleState</button>
   <script src="/dist/index.js"></script>
-  <!-- <script src="/src/detector.js"></script> -->
   <script>
-    // const tasks = Array.from({ length: 5 }).map((_, i) => {
-    //   if (i % 2) {
-    //     return () => console.log('do async task ' + i)
-    //   }
-    //   return function() {
-    //     setTimeout(() => {
-    //       console.log('do sync task ' + i)
-    //     }, 200)
-    //   }
-    // })
 
-    // const taskQueue = new idle(
-    //   tasks
-    // )
-    // console.log(taskQueue)
-    // taskQueue.start()
     const a = idle(() => {
       console.log('do task0')
     }, {
       loop: true,
       timeout: 2000,
       interval: 500,
-      enableMousemove: true,
+      // enableMousemove: true,
       tasks: [() => console.log('do task1'), () => console.log('do task2')]
     })
 

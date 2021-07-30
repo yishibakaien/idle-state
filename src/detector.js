@@ -3,21 +3,37 @@ const STATUS_PAUSE = 2
 const STATUS_STOP = 3
 
 const isFunction = (fn) => typeof fn === 'function'
+
 const isObject = (obj) =>
   Object.prototype.toString.call(obj) === '[object Object]'
+
+const isArray = (obj) =>
+  Object.prototype.toString.call(obj) === '[object Array]'
+
+const uniqueArray = (arr) => {
+  const ret = []
+  for (let i = 0; i < arr.length; i++) {
+    if (arr.indexOf(arr[i]) === i) {
+      ret.push(arr[i])
+    }
+  }
+  return ret
+}
+
 const next = (callback) => isFunction(callback) && callback()
+
 const noop = () => {}
 
 class Detector {
   static events = [
     'scroll',
-    'mousedown',
-    'mousewheel',
     'keydown',
     'touchmove',
     'touchstart',
-    'wheel',
     'click',
+    // 'mousedown',
+    // 'wheel',
+    // 'mousewheel',
     // 'mousemove',
   ]
 
@@ -33,8 +49,8 @@ class Detector {
       Object.assign(options, task)
     }
 
-    if (Array.isArray(task)) {
-      if (Array.isArray(options.tasks)) {
+    if (isArray(task)) {
+      if (isArray(options.tasks)) {
         options.tasks = task.concat(options.tasks)
       } else {
         options.tasks = task
@@ -43,11 +59,16 @@ class Detector {
 
     // transform all tasks to a task array
     if (isFunction(task)) {
-      if (Array.isArray(options.tasks)) {
+      if (isArray(options.tasks)) {
         options.tasks = [task].concat(options.tasks)
       } else {
         options.tasks = [task]
       }
+    }
+
+    const { events } = options
+    if (isArray(events) && events) {
+      Detector.events = Detector.events.concat(events)
     }
 
     this.options = {
@@ -57,6 +78,7 @@ class Detector {
       loop: false,
       enableMousemove: false,
       tasks: [],
+      events: [],
       onDispose: noop,
       onPause: noop,
       onResume: noop,
@@ -70,6 +92,9 @@ class Detector {
     if (this.options.enableMousemove) {
       Detector.events.push('mousemove')
     }
+
+    // remove repeat event
+    Detector.events = uniqueArray(Detector.events)
 
     const element = this.options.target
 

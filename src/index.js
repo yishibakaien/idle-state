@@ -1,4 +1,3 @@
-import Idle from './idleState'
-import Detector from './detector'
+import detector from './detector'
 
-export default Detector
+export default detector

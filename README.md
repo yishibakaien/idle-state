@@ -80,7 +80,8 @@ The `idle` function tasks two arguments
   - `timeout [Number]` - the duration after the browser enters the idle state, at which time the task begins to execute
   - `interval [Number]` - interval of task runing
   - `loop [Boolean]` - should task(s) runs loopy
-  - `enableMousemove [Boolean]` - should detect mousemove event
+  - `enableMousemove [Boolean]` - should detect mousemove event. Mousemove events are frequently triggered in the browser, so put it configurable
+  - `events [EventName-array]` - name of events, which would be concated with default value
   - `onPause [Function]` - called on tasks pause
   - `onResume` - called on tasks resume
   - `onDispose` - called on tasks dispose
@@ -97,6 +98,7 @@ const defaultOptions = {
   interval: 1000,
   loop: false,
   enableMousemove: false,
+  events: ['scroll', 'keydown', 'touchmove', 'touchstart', 'click'],
   onPause: noop,
   onResume: noop,
   onDispose: noop,
