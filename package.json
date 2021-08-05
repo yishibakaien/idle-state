@@ -3,7 +3,9 @@
   "version": "0.1.4",
   "description": "Running some tasks while browser idling",
   "main": "./dist/idle-state.min.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "cross-env NODE_ENV=production rollup -c",
     "dev": "cross-env NODE_ENV=development rollup -c -w"
@@ -16,10 +18,10 @@
   "author": "cloud-cb",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.14.6",
-    "@babel/preset-env": "^7.14.7",
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
     "cross-env": "^7.0.3",
-    "rollup": "^2.53.2",
+    "rollup": "^2.56.0",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
