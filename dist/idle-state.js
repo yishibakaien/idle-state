@@ -30,12 +30,6 @@
         return __assign.apply(this, arguments);
     };
 
-    function __spreadArray(to, from) {
-        for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-            to[j] = from[i];
-        return to;
-    }
-
     var isFunction = function (fn) { return typeof fn === 'function'; };
     var isObject = function (obj) {
         return Object.prototype.toString.call(obj) === '[object Object]';
@@ -150,7 +144,6 @@
         // start running tasks
         Detector.prototype.start = function () {
             var _this = this;
-            console.log(123);
             this.clearTimer();
             var _a = this.options, interval = _a.interval, timeout = _a.timeout;
             var time = this.isIdle ? interval : timeout;
@@ -220,12 +213,9 @@
         };
         return Detector;
     }());
-    function index () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        return new (Detector.bind.apply(Detector, __spreadArray([void 0], args)))();
+
+    function index (task, options) {
+        return new Detector(task, options);
     }
 
     return index;
