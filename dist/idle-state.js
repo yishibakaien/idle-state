@@ -118,6 +118,48 @@
     return _construct.apply(null, arguments);
   }
 
+  function _classPrivateFieldGet(receiver, privateMap) {
+    var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "get");
+
+    return _classApplyDescriptorGet(receiver, descriptor);
+  }
+
+  function _classPrivateFieldSet(receiver, privateMap, value) {
+    var descriptor = _classExtractFieldDescriptor(receiver, privateMap, "set");
+
+    _classApplyDescriptorSet(receiver, descriptor, value);
+
+    return value;
+  }
+
+  function _classExtractFieldDescriptor(receiver, privateMap, action) {
+    if (!privateMap.has(receiver)) {
+      throw new TypeError("attempted to " + action + " private field on non-instance");
+    }
+
+    return privateMap.get(receiver);
+  }
+
+  function _classApplyDescriptorGet(receiver, descriptor) {
+    if (descriptor.get) {
+      return descriptor.get.call(receiver);
+    }
+
+    return descriptor.value;
+  }
+
+  function _classApplyDescriptorSet(receiver, descriptor, value) {
+    if (descriptor.set) {
+      descriptor.set.call(receiver, value);
+    } else {
+      if (!descriptor.writable) {
+        throw new TypeError("attempted to set read only private field");
+      }
+
+      descriptor.value = value;
+    }
+  }
+
   var isFunction = function isFunction(fn) {
     return typeof fn === 'function';
   };
@@ -152,6 +194,14 @@
   var STATUS_PAUSE = 2;
   var STATUS_STOP = 3;
 
+  var _isIdle = /*#__PURE__*/new WeakMap();
+
+  var _timer = /*#__PURE__*/new WeakMap();
+
+  var _status = /*#__PURE__*/new WeakMap();
+
+  var _index = /*#__PURE__*/new WeakMap();
+
   var Detector = /*#__PURE__*/function () {
     function Detector(task) {
       var _this = this;
@@ -160,13 +210,25 @@
 
       _classCallCheck(this, Detector);
 
-      _defineProperty(this, "isIdle", false);
+      _isIdle.set(this, {
+        writable: true,
+        value: false
+      });
 
-      _defineProperty(this, "timer", null);
+      _timer.set(this, {
+        writable: true,
+        value: null
+      });
 
-      _defineProperty(this, "status", STATUS_START);
+      _status.set(this, {
+        writable: true,
+        value: STATUS_START
+      });
 
-      _defineProperty(this, "currentTaskIndex", 0);
+      _index.set(this, {
+        writable: true,
+        value: 0
+      });
 
       _defineProperty(this, "eventHandler", this.eventHandler.bind(this));
 
@@ -224,18 +286,19 @@
       Detector.events.forEach(function (event) {
         element.addEventListener(event, _this.eventHandler);
       });
-      this.start();
+
+      this._start();
     } // controller of running tasks
 
 
     _createClass(Detector, [{
-      key: "run",
-      value: function run() {
+      key: "_run",
+      value: function _run() {
         var _this$options = this.options,
             tasks = _this$options.tasks,
             loop = _this$options.loop;
 
-        if (this.status !== STATUS_START) {
+        if (_classPrivateFieldGet(this, _status) !== STATUS_START) {
           return;
         }
 
@@ -243,13 +306,16 @@
           this.dispose();
         }
 
-        var isLastTask = this.currentTaskIndex === tasks.length - 1;
-        var task = tasks[this.currentTaskIndex];
+        var isLastTask = _classPrivateFieldGet(this, _index) === tasks.length - 1;
+
+        var task = tasks[_classPrivateFieldGet(this, _index)];
+
         next(task);
 
         if (loop && isLastTask) {
-          this.currentTaskIndex = 0;
-          this.start();
+          _classPrivateFieldSet(this, _index, 0);
+
+          this._start();
         }
 
         if (!loop && isLastTask) {
@@ -257,9 +323,46 @@
         }
 
         if (!isLastTask) {
-          this.currentTaskIndex++;
-          this.start();
+
+          _classPrivateFieldSet(this, _index, (+_classPrivateFieldGet(this, _index)) + 1);
+
+          this._start();
         }
+      }
+    }, {
+      key: "_clearTimer",
+      value: function _clearTimer() {
+        if (_classPrivateFieldGet(this, _timer)) {
+          clearTimeout(_classPrivateFieldGet(this, _timer));
+
+          _classPrivateFieldSet(this, _timer, null);
+        }
+      } // start running tasks
+
+    }, {
+      key: "_start",
+      value: function _start() {
+        var _this2 = this;
+
+        this._clearTimer();
+
+        var _this$options2 = this.options,
+            interval = _this$options2.interval,
+            timeout = _this$options2.timeout;
+        var time = _classPrivateFieldGet(this, _isIdle) ? interval : timeout;
+
+        _classPrivateFieldSet(this, _timer, setTimeout(function () {
+          _classPrivateFieldSet(_this2, _isIdle, true);
+
+          _this2._run();
+        }, time));
+      }
+    }, {
+      key: "eventHandler",
+      value: function eventHandler() {
+        _classPrivateFieldSet(this, _isIdle, false);
+
+        this._start();
       }
       /**
        * pause running tasks
@@ -270,8 +373,9 @@
     }, {
       key: "pause",
       value: function pause(cb) {
-        if (this.status === STATUS_START) {
-          this.status = STATUS_PAUSE;
+        if (_classPrivateFieldGet(this, _status) === STATUS_START) {
+          _classPrivateFieldSet(this, _status, STATUS_PAUSE);
+
           var callback = cb || this.options.onPause;
           next(callback);
         }
@@ -285,43 +389,14 @@
     }, {
       key: "resume",
       value: function resume(cb) {
-        if (this.status === STATUS_PAUSE) {
-          this.status = STATUS_START;
+        if (_classPrivateFieldGet(this, _status) === STATUS_PAUSE) {
+          _classPrivateFieldSet(this, _status, STATUS_START);
+
           var callback = cb || this.options.onResume;
           next(callback);
-          this.start();
+
+          this._start();
         }
-      }
-    }, {
-      key: "clearTimer",
-      value: function clearTimer() {
-        if (this.timer) {
-          clearTimeout(this.timer);
-          this.timer = null;
-        }
-      }
-    }, {
-      key: "eventHandler",
-      value: function eventHandler() {
-        this.isIdle = false;
-        this.start();
-      } // start running tasks
-
-    }, {
-      key: "start",
-      value: function start() {
-        var _this2 = this;
-
-        this.clearTimer();
-        var _this$options2 = this.options,
-            interval = _this$options2.interval,
-            timeout = _this$options2.timeout;
-        var time = this.isIdle ? interval : timeout;
-        this.timer = setTimeout(function () {
-          _this2.isIdle = true;
-
-          _this2.run();
-        }, time);
       } // dispose the resource & remove events handler
 
     }, {
@@ -329,8 +404,10 @@
       value: function dispose(cb) {
         var _this3 = this;
 
-        this.status = STATUS_STOP;
-        this.clearTimer();
+        _classPrivateFieldSet(this, _status, STATUS_STOP);
+
+        this._clearTimer();
+
         var element = this.options.target;
         Detector.events.forEach(function (evt) {
           element.removeEventListener(evt, _this3.eventHandler);
@@ -371,7 +448,7 @@
       key: "timeout",
       value: function timeout(_timeout) {
         this.options.timeout = _timeout;
-      } // set task running interval
+      } // set tasks running interval
 
     }, {
       key: "interval",
@@ -383,6 +460,12 @@
       key: "loop",
       value: function loop(value) {
         this.options.loop = value;
+      } // get current idle status
+
+    }, {
+      key: "isIdle",
+      value: function isIdle() {
+        return _classPrivateFieldGet(this, _isIdle);
       }
     }]);
 

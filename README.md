@@ -124,6 +124,7 @@ const instance = idle(() => {})
 - `.timeout(time)` - set `options.timeout` the duration after the browser enters the idle state, at which time the task begins to execute (in milliseconds)
 - `.interval(time)` - set `options.interval` the tasks running interval (in milliseconds)
 - `.loop(boolean)` - set `options.loop` should the tasks runs loopy
+- `.isIdle()` - get current idle state, return a boolean value
 
 > **the `callback` passed by `methods` ( such as `pause(callback)` ) has a higher priority than `options` ( such as `options.onPause` )**
 
@@ -188,10 +189,10 @@ import idle from 'idle-state'
 const instance = idle(() => {})
 
 // you can get current state by
-console.log(instance.isIdle) // => get a Boolean value
+instance.isIdle() // => get a Boolean value
 ```
 
-it will go false while browser trigger event [`scroll`, `keydown`, `touchmove`, `touchstart`, `click`] by default, you can config `options.events`,
+it will get `false` while browser trigger event [`scroll`, `keydown`, `touchmove`, `touchstart`, `click`] by default, you can config `options.events`,
 which will merge default `options.events`
 
 # demo

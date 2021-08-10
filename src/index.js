@@ -24,10 +24,10 @@ class Detector {
     // 'mousemove',
   ]
 
-  isIdle = false
-  timer = null
-  status = STATUS_START
-  currentTaskIndex = 0
+  #isIdle = false
+  #timer = null
+  #status = STATUS_START
+  #index = 0
 
   eventHandler = this.eventHandler.bind(this)
 
@@ -89,14 +89,14 @@ class Detector {
       element.addEventListener(event, this.eventHandler)
     })
 
-    this.start()
+    this._start()
   }
 
   // controller of running tasks
-  run() {
+  _run() {
     const { tasks, loop } = this.options
 
-    if (this.status !== STATUS_START) {
+    if (this.#status !== STATUS_START) {
       return
     }
 
@@ -104,15 +104,15 @@ class Detector {
       this.dispose()
     }
 
-    const isLastTask = this.currentTaskIndex === tasks.length - 1
+    const isLastTask = this.#index === tasks.length - 1
 
-    const task = tasks[this.currentTaskIndex]
+    const task = tasks[this.#index]
 
     next(task)
 
     if (loop && isLastTask) {
-      this.currentTaskIndex = 0
-      this.start()
+      this.#index = 0
+      this._start()
     }
 
     if (!loop && isLastTask) {
@@ -120,9 +120,35 @@ class Detector {
     }
 
     if (!isLastTask) {
-      this.currentTaskIndex++
-      this.start()
+      this.#index++
+      this._start()
     }
+  }
+
+  _clearTimer() {
+    if (this.#timer) {
+      clearTimeout(this.#timer)
+      this.#timer = null
+    }
+  }
+
+  // start running tasks
+  _start() {
+    this._clearTimer()
+
+    const { interval, timeout } = this.options
+
+    const time = this.#isIdle ? interval : timeout
+
+    this.#timer = setTimeout(() => {
+      this.#isIdle = true
+      this._run()
+    }, time)
+  }
+
+  eventHandler() {
+    this.#isIdle = false
+    this._start()
   }
 
   /**
@@ -131,8 +157,8 @@ class Detector {
    * @param {Function} cb
    */
   pause(cb) {
-    if (this.status === STATUS_START) {
-      this.status = STATUS_PAUSE
+    if (this.#status === STATUS_START) {
+      this.#status = STATUS_PAUSE
       const callback = cb || this.options.onPause
       next(callback)
     }
@@ -144,44 +170,18 @@ class Detector {
    * @param {Function} cb
    */
   resume(cb) {
-    if (this.status === STATUS_PAUSE) {
-      this.status = STATUS_START
+    if (this.#status === STATUS_PAUSE) {
+      this.#status = STATUS_START
       const callback = cb || this.options.onResume
       next(callback)
-      this.start()
+      this._start()
     }
-  }
-
-  clearTimer() {
-    if (this.timer) {
-      clearTimeout(this.timer)
-      this.timer = null
-    }
-  }
-
-  eventHandler() {
-    this.isIdle = false
-    this.start()
-  }
-
-  // start running tasks
-  start() {
-    this.clearTimer()
-
-    const { interval, timeout } = this.options
-
-    const time = this.isIdle ? interval : timeout
-
-    this.timer = setTimeout(() => {
-      this.isIdle = true
-      this.run()
-    }, time)
   }
 
   // dispose the resource & remove events handler
   dispose(cb) {
-    this.status = STATUS_STOP
-    this.clearTimer()
+    this.#status = STATUS_STOP
+    this._clearTimer()
     const element = this.options.target
     Detector.events.forEach((evt) => {
       element.removeEventListener(evt, this.eventHandler)
@@ -212,7 +212,7 @@ class Detector {
     this.options.timeout = timeout
   }
 
-  // set task running interval
+  // set tasks running interval
   interval(interval) {
     this.options.interval = interval
   }
@@ -220,6 +220,11 @@ class Detector {
   // set loop option
   loop(value) {
     this.options.loop = value
+  }
+
+  // get current idle status
+  isIdle() {
+    return this.#isIdle
   }
 }
 
