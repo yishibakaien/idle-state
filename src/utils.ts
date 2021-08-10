@@ -1,13 +1,13 @@
-export const isFunction = (fn) => typeof fn === 'function'
+export const isFunction = (fn: () => void) => typeof fn === 'function'
 
-export const isObject = (obj) =>
+export const isObject = (obj?: any) =>
   Object.prototype.toString.call(obj) === '[object Object]'
 
-export const isArray = (obj) =>
+export const isArray = (obj?: any) =>
   Object.prototype.toString.call(obj) === '[object Array]'
 
 // unique array item
-export const uniqueArray = (arr) => {
+export const uniqueArray = (arr?: any) => {
   if (!isArray(arr)) {
     return []
   }
@@ -21,6 +21,6 @@ export const uniqueArray = (arr) => {
   return ret
 }
 
-export const next = (callback) => isFunction(callback) && callback()
+export const next = (callback: any) => isFunction(callback) && callback()
 
 export const noop = () => {}

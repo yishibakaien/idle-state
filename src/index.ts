@@ -5,33 +5,32 @@ import {
   uniqueArray,
   next,
   noop,
-} from './utils.js'
+} from './utils'
+
+import OptionsInterface from './interfaces/Options'
 
 const STATUS_START = 1
 const STATUS_PAUSE = 2
 const STATUS_STOP = 3
 
 class Detector {
-  static events = [
+  protected events: string[] = [
     'scroll',
     'keydown',
     'touchmove',
     'touchstart',
     'click',
-    // 'mousedown',
-    // 'wheel',
-    // 'mousewheel',
-    // 'mousemove',
   ]
+  protected options: OptionsInterface
 
-  #isIdle = false
-  #timer = null
-  #status = STATUS_START
-  #index = 0
+  protected isIdle: boolean = false
 
-  eventHandler = this.eventHandler.bind(this)
+  protected timer: ReturnType<typeof setTimeout> | null = null
+  private status: number = STATUS_START
+  private index: number = 0
+  protected _eventHandler = this.eventHandler.bind(this)
 
-  constructor(task, options = {}) {
+  public constructor(task?: any, options?: OptionsInterface) {
     if (isObject(task)) {
       Object.assign(options, task)
     }
@@ -55,7 +54,7 @@ class Detector {
 
     const { events } = options
     if (isArray(events)) {
-      Detector.events = Detector.events.concat(events)
+      this.events = this.events.concat(events)
     }
 
     this.options = {
@@ -77,26 +76,26 @@ class Detector {
      * so put it configurable
      */
     if (this.options.enableMousemove) {
-      Detector.events.push('mousemove')
+      this.events.push('mousemove')
     }
 
     // remove repeat event
-    Detector.events = uniqueArray(Detector.events)
+    this.events = uniqueArray(this.events)
 
     const element = this.options.target
 
-    Detector.events.forEach((event) => {
-      element.addEventListener(event, this.eventHandler)
+    this.events.forEach((event): void => {
+      element.addEventListener(event, this._eventHandler)
     })
 
-    this._start()
+    this.start()
   }
 
   // controller of running tasks
-  _run() {
+  protected run(): void {
     const { tasks, loop } = this.options
 
-    if (this.#status !== STATUS_START) {
+    if (this.status !== STATUS_START) {
       return
     }
 
@@ -104,15 +103,15 @@ class Detector {
       this.dispose()
     }
 
-    const isLastTask = this.#index === tasks.length - 1
+    const isLastTask = this.index === tasks.length - 1
 
-    const task = tasks[this.#index]
+    const task = tasks[this.index]
 
     next(task)
 
     if (loop && isLastTask) {
-      this.#index = 0
-      this._start()
+      this.index = 0
+      this.start()
     }
 
     if (!loop && isLastTask) {
@@ -120,35 +119,36 @@ class Detector {
     }
 
     if (!isLastTask) {
-      this.#index++
-      this._start()
+      this.index++
+      this.start()
     }
   }
 
-  _clearTimer() {
-    if (this.#timer) {
-      clearTimeout(this.#timer)
-      this.#timer = null
+  protected clearTimer(): void {
+    if (this.timer) {
+      clearTimeout(this.timer)
+      this.timer = null
     }
   }
 
   // start running tasks
-  _start() {
-    this._clearTimer()
+  protected start(): void {
+    console.log(123)
+    this.clearTimer()
 
     const { interval, timeout } = this.options
 
-    const time = this.#isIdle ? interval : timeout
+    const time = this.isIdle ? interval : timeout
 
-    this.#timer = setTimeout(() => {
-      this.#isIdle = true
-      this._run()
+    this.timer = setTimeout(() => {
+      this.isIdle = true
+      this.run()
     }, time)
   }
 
-  eventHandler() {
-    this.#isIdle = false
-    this._start()
+  protected eventHandler(): void {
+    this.isIdle = false
+    this.start()
   }
 
   /**
@@ -156,9 +156,9 @@ class Detector {
    * callback passed by this has a higher priority than options
    * @param {Function} cb
    */
-  pause(cb) {
-    if (this.#status === STATUS_START) {
-      this.#status = STATUS_PAUSE
+  public pause(cb?: ()=> void) {
+    if (this.status === STATUS_START) {
+      this.status = STATUS_PAUSE
       const callback = cb || this.options.onPause
       next(callback)
     }
@@ -169,65 +169,50 @@ class Detector {
    * callback passed by this has a higher priority than options
    * @param {Function} cb
    */
-  resume(cb) {
-    if (this.#status === STATUS_PAUSE) {
-      this.#status = STATUS_START
+  public resume(cb?: ()=> void) {
+    if (this.status === STATUS_PAUSE) {
+      this.status = STATUS_START
       const callback = cb || this.options.onResume
       next(callback)
-      this._start()
+      this.start()
     }
   }
 
   // dispose the resource & remove events handler
-  dispose(cb) {
-    this.#status = STATUS_STOP
-    this._clearTimer()
+  public dispose(cb?: ()=> void) {
+    this.status = STATUS_STOP
+    this.clearTimer()
     const element = this.options.target
-    Detector.events.forEach((evt) => {
-      element.removeEventListener(evt, this.eventHandler)
+    this.events.forEach((evt) => {
+      element.removeEventListener(evt, this._eventHandler)
     })
     const callback = cb || this.options.onDispose
     next(callback)
   }
 
-  // convenience options for `dispose` API
-  stop(...args) {
-    this.dispose.apply(this, args)
-  }
-
-  // convenience options for `dispose` API
-  destroy(...args) {
-    this.dispose.apply(this, args)
-  }
-
   // push a task
-  push(task) {
+  public push(task: ()=> void) {
     if (isFunction(task)) {
       this.options.tasks.push(task)
     }
   }
 
   // set tasks running timeout
-  timeout(timeout) {
+  public timeout(timeout: number) {
     this.options.timeout = timeout
   }
 
   // set tasks running interval
-  interval(interval) {
+  public interval(interval: number) {
     this.options.interval = interval
   }
 
   // set loop option
-  loop(value) {
+  public loop(value: boolean) {
     this.options.loop = value
-  }
-
-  // get current idle status
-  isIdle() {
-    return this.#isIdle
   }
 }
 
-export default function (...args) {
+export default function (...args: any[]) {
   return new Detector(...args)
 }

@@ -20,7 +20,7 @@
       loop: true,
       timeout: 2000,
       interval: 500,
-      // enableMousemove: true,
+      enableMousemove: true,
       tasks: [() => console.log('do task1'), () => console.log('do task2')]
     })
 
@@ -31,10 +31,10 @@
       a.resume()
     }
     function dispose() {
-      a.destroy(() => console.log('dispose'))
+      a.dispose(() => console.log('dispose'))
     }
     function getIdleState() {
-      console.log(a.isIdle())
+      console.log(a.isIdle)
     }
   </script>
 </body>
