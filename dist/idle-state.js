@@ -166,6 +166,7 @@
                 this.status = STATUS_PAUSE;
                 var callback = cb || this.options.onPause;
                 next(callback);
+                return this;
             }
         };
         /**
@@ -179,6 +180,7 @@
                 var callback = cb || this.options.onResume;
                 next(callback);
                 this.start();
+                return this;
             }
         };
         // dispose the resource & remove events handler
@@ -198,18 +200,22 @@
             if (isFunction(task)) {
                 this.options.tasks.push(task);
             }
+            return this;
         };
         // set tasks running timeout
         Detector.prototype.timeout = function (timeout) {
             this.options.timeout = timeout;
+            return this;
         };
         // set tasks running interval
         Detector.prototype.interval = function (interval) {
             this.options.interval = interval;
+            return this;
         };
         // set loop option
         Detector.prototype.loop = function (value) {
             this.options.loop = value;
+            return this;
         };
         return Detector;
     }());

@@ -7,21 +7,34 @@
   <title>demo</title>
 </head>
 <body style="height: 100vh;">
+  <div>
+    While click this page, it will trigger `click` event, then task will pause for a while.
+  </div>
   <button onclick="pause()">pause</button>
   <button onclick="resume()">resume</button>
+  <button onclick="push()">push task</button>
+  <button onclick="stopLoop()">stop loop</button>
+  <button onclick="getIdleState()">get current idle state</button>
+  <button onclick="setIntervalAndTimeout()"> set interval and timeout faster </button>
   <button onclick="dispose()">dispose</button>
-  <button onclick="getIdleState()">getIdleState</button>
+  <button onclick="location.href = location.href">refresh this page</button>
+  <div id="box"></div>
   <script src="/dist/idle-state.js"></script>
   <script>
 
+    const $box = document.querySelector('#box')
+    
     const a = idle(() => {
-      console.log('do task0')
+      $box.innerHTML = 'do task 0'
     }, {
       loop: true,
       timeout: 2000,
       interval: 500,
-      enableMousemove: true,
-      tasks: [() => console.log('do task1'), () => console.log('do task2')]
+      // enableMousemove: true,
+      tasks: [() => $box.innerHTML = 'do task 1', () => $box.innerHTML = 'do task 2'],
+      onDispose() {
+        $box.innerHTML = 'task disposed'
+      }
     })
 
     function pause() {
@@ -30,12 +43,26 @@
     function resume() {
       a.resume()
     }
-    function dispose() {
-      a.dispose(() => console.log('dispose'))
+
+    function push() {
+      const taskId =  Math.random().toString(16).slice(-5)
+      a.push(() => $box.innerHTML = ('do task ' + taskId))
+    }
+    function stopLoop() {
+      a.loop(false)
     }
     function getIdleState() {
       console.log(a.isIdle)
     }
+
+    function setIntervalAndTimeout() {
+      a.interval(100).timeout(500)
+    }
+    function dispose() {
+      a.dispose(() => $box.innerHTML = 'disposed')
+    }
+
+    
   </script>
 </body>
 </html>

@@ -29,7 +29,7 @@ export default class Detector {
   private index: number = 0
   protected _eventHandler = this.eventHandler.bind(this)
 
-  public constructor(task: any , options?: OptionsInterface) {
+  constructor(task: any , options?: OptionsInterface) {
     if (isObject(task)) {
       Object.assign(options, task)
     }
@@ -91,7 +91,7 @@ export default class Detector {
   }
 
   // controller of running tasks
-  protected run(): void {
+  private run(): void {
     const { tasks, loop } = this.options
 
     if (this.status !== STATUS_START) {
@@ -123,7 +123,7 @@ export default class Detector {
     }
   }
 
-  protected clearTimer(): void {
+  private clearTimer(): void {
     if (this.timer) {
       clearTimeout(this.timer)
       this.timer = null
@@ -131,7 +131,7 @@ export default class Detector {
   }
 
   // start running tasks
-  protected start(): void {
+  private start(): void {
     this.clearTimer()
 
     const { interval, timeout } = this.options
@@ -144,7 +144,7 @@ export default class Detector {
     }, time)
   }
 
-  protected eventHandler(): void {
+  private eventHandler(): void {
     this.isIdle = false
     this.start()
   }
@@ -154,11 +154,12 @@ export default class Detector {
    * callback passed by this has a higher priority than options
    * @param {Function} cb
    */
-  public pause(cb?: ()=> void) {
+  pause(cb?: ()=> void) {
     if (this.status === STATUS_START) {
       this.status = STATUS_PAUSE
       const callback = cb || this.options.onPause
       next(callback)
+      return this
     }
   }
 
@@ -167,17 +168,18 @@ export default class Detector {
    * callback passed by this has a higher priority than options
    * @param {Function} cb
    */
-  public resume(cb?: ()=> void) {
+  resume(cb?: ()=> void) {
     if (this.status === STATUS_PAUSE) {
       this.status = STATUS_START
       const callback = cb || this.options.onResume
       next(callback)
       this.start()
+      return this
     }
   }
 
   // dispose the resource & remove events handler
-  public dispose(cb?: ()=> void) {
+  dispose(cb?: ()=> void): void {
     this.status = STATUS_STOP
     this.clearTimer()
     const element = this.options.target
@@ -189,24 +191,28 @@ export default class Detector {
   }
 
   // push a task
-  public push(task: ()=> void) {
+  push(task: ()=> void) {
     if (isFunction(task)) {
       this.options.tasks.push(task)
     }
+    return this
   }
 
   // set tasks running timeout
-  public timeout(timeout: number) {
+  timeout(timeout: number) {
     this.options.timeout = timeout
+    return this
   }
 
   // set tasks running interval
-  public interval(interval: number) {
+  interval(interval: number) {
     this.options.interval = interval
+    return this
   }
 
   // set loop option
-  public loop(value: boolean) {
+  loop(value: boolean) {
     this.options.loop = value
+    return this
   }
 }
