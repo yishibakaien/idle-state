@@ -26,15 +26,16 @@ using cdn
 
 # usage
 
-just a callback, it will be called while browser idling
+just pass a callback
 
 ```js
 import idle from 'idle-state'
 
-// just a callback
-idle(() => {
-  console.log('do task.')
-})
+const foo = () => {
+  console.log('do task foo.')
+}
+// just pass a callback, `foo` will be called while browser idling
+idle(foo)
 ```
 
 pass a task-array
@@ -45,7 +46,7 @@ import idle from 'idle-state'
 const task1 = () => console.log('do task1.')
 const task2 = () => console.log('do task2.')
 
-// tasks-array
+// tasks-array, `task1` & `task2` will be called while browser idling
 idle([task1, task2])
 ```
 
@@ -63,13 +64,13 @@ idle({
 })
 
 // both callback & config options
+// in this case task1 & task2 will be converted to an tasks-array [task1, task2]
 idle(task1, { tasks: [task2] })
-// actually task1 & task2 will be converted to an tasks-array [task1, task2]
 ```
 
 # document
 
-The `idle` function tasks two arguments
+The `idle` function has two arguments
 
 - `callback` - can be a function or function-array
   - `[Function]` - considered a single task
@@ -81,7 +82,7 @@ The `idle` function tasks two arguments
   - `interval [Number]` - interval of task runing
   - `loop [Boolean]` - should task(s) runs loopy
   - `enableMousemove [Boolean]` - should detect mousemove event. Mousemove events are frequently triggered in the browser, so put it configurable
-  - `events [EventName-array]` - name of events, which would be concated(merged) with default value
+  - `events [EventName-array]` - name of events, which would be concated(merged) with default value (`scroll`, `keydown`, `touchmove`, `touchstart`, `click`)
   - `onPause [Function]` - called on tasks pause
   - `onResume [Function]` - called on tasks resume
   - `onDispose [Function]` - called on tasks dispose
