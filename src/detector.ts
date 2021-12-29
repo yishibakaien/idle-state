@@ -13,6 +13,15 @@ const STATUS_START = 1
 const STATUS_PAUSE = 2
 const STATUS_STOP = 3
 
+// private props
+const _index = Symbol('index')
+
+// private api
+const _start = Symbol('start')
+const _run = Symbol('run')
+const _clearTimer = Symbol('clearTimer')
+const _eventHandler = Symbol('eventHandler')
+
 export default class Detector {
   protected events: string[] = [
     'scroll',
@@ -26,8 +35,8 @@ export default class Detector {
   protected isIdle: boolean = false
   protected timer: ReturnType<typeof setTimeout> | null = null
   private status: number = STATUS_START
-  private index: number = 0
-  protected _eventHandler = this.eventHandler.bind(this)
+  private [_index]: number = 0
+  protected _eventHandler = this[_eventHandler].bind(this)
 
   constructor(task: any , options?: OptionsInterface) {
     if (isObject(task)) {
@@ -87,11 +96,11 @@ export default class Detector {
       element.addEventListener(event, this._eventHandler)
     })
 
-    this.start()
+    this[_start]()
   }
 
   // controller of running tasks
-  private run(): void {
+  private [_run](): void {
     const { tasks, loop } = this.options
 
     if (this.status !== STATUS_START) {
@@ -102,15 +111,15 @@ export default class Detector {
       this.dispose()
     }
 
-    const isLastTask = this.index === tasks.length - 1
+    const isLastTask = this[_index] === tasks.length - 1
 
-    const task = tasks[this.index]
+    const task = tasks[this[_index]]
 
     next(task)
 
     if (loop && isLastTask) {
-      this.index = 0
-      this.start()
+      this[_index] = 0
+      this[_start]()
     }
 
     if (!loop && isLastTask) {
@@ -118,12 +127,12 @@ export default class Detector {
     }
 
     if (!isLastTask) {
-      this.index++
-      this.start()
+      this[_index]++
+      this[_start]()
     }
   }
 
-  private clearTimer(): void {
+  private [_clearTimer](): void {
     if (this.timer) {
       clearTimeout(this.timer)
       this.timer = null
@@ -131,8 +140,8 @@ export default class Detector {
   }
 
   // start running tasks
-  private start(): void {
-    this.clearTimer()
+  private [_start](): void {
+    this[_clearTimer]()
 
     const { interval, timeout } = this.options
 
@@ -140,13 +149,13 @@ export default class Detector {
 
     this.timer = setTimeout(() => {
       this.isIdle = true
-      this.run()
+      this[_run]()
     }, time)
   }
 
-  private eventHandler(): void {
+  private [_eventHandler](): void {
     this.isIdle = false
-    this.start()
+    this[_start]()
   }
 
   /**
@@ -173,7 +182,7 @@ export default class Detector {
       this.status = STATUS_START
       const callback = cb || this.options.onResume
       next(callback)
-      this.start()
+      this[_start]()
       return this
     }
   }
@@ -181,7 +190,7 @@ export default class Detector {
   // dispose the resource & remove events handler
   dispose(cb?: ()=> void): void {
     this.status = STATUS_STOP
-    this.clearTimer()
+    this[_clearTimer]()
     const element = this.options.target
     this.events.forEach((evt) => {
       element.removeEventListener(evt, this._eventHandler)

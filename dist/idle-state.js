@@ -53,9 +53,17 @@
     var next = function (callback) { return isFunction(callback) && callback(); };
     var noop = function () { };
 
+    var _a;
     var STATUS_START = 1;
     var STATUS_PAUSE = 2;
     var STATUS_STOP = 3;
+    // private props
+    var _index = Symbol('index');
+    // private api
+    var _start = Symbol('start');
+    var _run = Symbol('run');
+    var _clearTimer = Symbol('clearTimer');
+    var _eventHandler = Symbol('eventHandler');
     var Detector = /** @class */ (function () {
         function Detector(task, options) {
             var _this = this;
@@ -69,8 +77,8 @@
             this.isIdle = false;
             this.timer = null;
             this.status = STATUS_START;
-            this.index = 0;
-            this._eventHandler = this.eventHandler.bind(this);
+            this[_a] = 0;
+            this._eventHandler = this[_eventHandler].bind(this);
             if (isObject(task)) {
                 Object.assign(options, task);
             }
@@ -109,52 +117,52 @@
             this.events.forEach(function (event) {
                 element.addEventListener(event, _this._eventHandler);
             });
-            this.start();
+            this[_start]();
         }
         // controller of running tasks
-        Detector.prototype.run = function () {
-            var _a = this.options, tasks = _a.tasks, loop = _a.loop;
+        Detector.prototype[(_a = _index, _run)] = function () {
+            var _b = this.options, tasks = _b.tasks, loop = _b.loop;
             if (this.status !== STATUS_START) {
                 return;
             }
             if (!tasks.length) {
                 this.dispose();
             }
-            var isLastTask = this.index === tasks.length - 1;
-            var task = tasks[this.index];
+            var isLastTask = this[_index] === tasks.length - 1;
+            var task = tasks[this[_index]];
             next(task);
             if (loop && isLastTask) {
-                this.index = 0;
-                this.start();
+                this[_index] = 0;
+                this[_start]();
             }
             if (!loop && isLastTask) {
                 this.dispose();
             }
             if (!isLastTask) {
-                this.index++;
-                this.start();
+                this[_index]++;
+                this[_start]();
             }
         };
-        Detector.prototype.clearTimer = function () {
+        Detector.prototype[_clearTimer] = function () {
             if (this.timer) {
                 clearTimeout(this.timer);
                 this.timer = null;
             }
         };
         // start running tasks
-        Detector.prototype.start = function () {
+        Detector.prototype[_start] = function () {
             var _this = this;
-            this.clearTimer();
-            var _a = this.options, interval = _a.interval, timeout = _a.timeout;
+            this[_clearTimer]();
+            var _b = this.options, interval = _b.interval, timeout = _b.timeout;
             var time = this.isIdle ? interval : timeout;
             this.timer = setTimeout(function () {
                 _this.isIdle = true;
-                _this.run();
+                _this[_run]();
             }, time);
         };
-        Detector.prototype.eventHandler = function () {
+        Detector.prototype[_eventHandler] = function () {
             this.isIdle = false;
-            this.start();
+            this[_start]();
         };
         /**
          * pause running tasks
@@ -179,7 +187,7 @@
                 this.status = STATUS_START;
                 var callback = cb || this.options.onResume;
                 next(callback);
-                this.start();
+                this[_start]();
                 return this;
             }
         };
@@ -187,7 +195,7 @@
         Detector.prototype.dispose = function (cb) {
             var _this = this;
             this.status = STATUS_STOP;
-            this.clearTimer();
+            this[_clearTimer]();
             var element = this.options.target;
             this.events.forEach(function (evt) {
                 element.removeEventListener(evt, _this._eventHandler);
