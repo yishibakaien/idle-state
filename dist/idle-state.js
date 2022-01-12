@@ -53,6 +53,51 @@
     var next = function (callback) { return isFunction(callback) && callback(); };
     var noop = function () { };
 
+    var fetchDetector = function (cb) {
+        var count = 0;
+        var store = {
+            count: count
+        };
+        Object.defineProperty(store, 'count', {
+            set: function (val) {
+                count = val;
+                cb(count === 0);
+            },
+            get: function () {
+                return count;
+            }
+        });
+        var oldOpen = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function () {
+            var _this = this;
+            store.count++;
+            this.addEventListener('readystatechange', function () {
+                if (_this.readyState === 4) {
+                    store.count--;
+                }
+            }, false);
+            oldOpen.apply(this, arguments);
+        };
+        var oldFetch = window.fetch;
+        window.fetch = function () {
+            var _this = this;
+            store.count++;
+            var args = arguments;
+            return new Promise(function (resolve, reject) {
+                oldFetch.apply(_this, args).then(function (res) {
+                    store.count--;
+                    resolve(res);
+                }).catch(function (err) {
+                    store.count--;
+                    reject(err);
+                });
+            });
+        };
+    };
+    var fetchDetector$1 = (function (cb) {
+        fetchDetector(cb);
+    });
+
     var _a;
     var STATUS_START = 1;
     var STATUS_PAUSE = 2;
@@ -116,6 +161,9 @@
             var element = this.options.target;
             this.events.forEach(function (event) {
                 element.addEventListener(event, _this._eventHandler);
+            });
+            fetchDetector$1(function (isFetchIdle) {
+                isFetchIdle && _this._eventHandler();
             });
             this[_start]();
         }

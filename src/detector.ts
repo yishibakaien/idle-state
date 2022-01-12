@@ -8,6 +8,7 @@ import {
 } from './utils'
 
 import OptionsInterface from './interfaces/Options'
+import fetchDetector  from './fetchDetector'
 
 const STATUS_START = 1
 const STATUS_PAUSE = 2
@@ -96,6 +97,10 @@ export default class Detector {
       element.addEventListener(event, this._eventHandler)
     })
 
+    fetchDetector((isFetchIdle) => {
+      isFetchIdle && this._eventHandler()
+    })
+
     this[_start]()
   }
 
@@ -163,7 +168,7 @@ export default class Detector {
    * callback passed by this has a higher priority than options
    * @param {Function} cb
    */
-  pause(cb?: ()=> void) {
+  pause(cb?: () => void) {
     if (this.status === STATUS_START) {
       this.status = STATUS_PAUSE
       const callback = cb || this.options.onPause
@@ -177,7 +182,7 @@ export default class Detector {
    * callback passed by this has a higher priority than options
    * @param {Function} cb
    */
-  resume(cb?: ()=> void) {
+  resume(cb?: () => void) {
     if (this.status === STATUS_PAUSE) {
       this.status = STATUS_START
       const callback = cb || this.options.onResume
@@ -188,7 +193,7 @@ export default class Detector {
   }
 
   // dispose the resource & remove events handler
-  dispose(cb?: ()=> void): void {
+  dispose(cb?: () => void): void {
     this.status = STATUS_STOP
     this[_clearTimer]()
     const element = this.options.target
@@ -200,7 +205,7 @@ export default class Detector {
   }
 
   // push a task
-  push(task: ()=> void) {
+  push(task: () => void) {
     if (isFunction(task)) {
       this.options.tasks.push(task)
     }
