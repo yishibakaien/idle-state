@@ -72,6 +72,7 @@ export default class Detector {
       interval: 1000,
       loop: false,
       enableMousemove: false,
+      enableReqeustDetect: true,
       tasks: [],
       events: [],
       onDispose: noop,
@@ -88,6 +89,12 @@ export default class Detector {
       this.events.push('mousemove')
     }
 
+    if (this.options.enableMousemove) {
+      fetchDetector((isFetchIdle) => {
+        isFetchIdle && this._eventHandler()
+      })
+    }
+
     // remove repeat event
     this.events = uniqueArray(this.events)
 
@@ -96,11 +103,7 @@ export default class Detector {
     this.events.forEach((event): void => {
       element.addEventListener(event, this._eventHandler)
     })
-
-    fetchDetector((isFetchIdle) => {
-      isFetchIdle && this._eventHandler()
-    })
-
+  
     this[_start]()
   }
 

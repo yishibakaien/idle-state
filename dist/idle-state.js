@@ -148,7 +148,7 @@
             if (isArray(events)) {
                 this.events = this.events.concat(events);
             }
-            this.options = __assign({ target: document.body, timeout: 3000, interval: 1000, loop: false, enableMousemove: false, tasks: [], events: [], onDispose: noop, onPause: noop, onResume: noop }, options);
+            this.options = __assign({ target: document.body, timeout: 3000, interval: 1000, loop: false, enableMousemove: false, enableReqeustDetect: true, tasks: [], events: [], onDispose: noop, onPause: noop, onResume: noop }, options);
             /**
              * mousemove events are frequently triggered in the browser,
              * so put it configurable
@@ -156,14 +156,16 @@
             if (this.options.enableMousemove) {
                 this.events.push('mousemove');
             }
+            if (this.options.enableMousemove) {
+                fetchDetector$1(function (isFetchIdle) {
+                    isFetchIdle && _this._eventHandler();
+                });
+            }
             // remove repeat event
             this.events = uniqueArray(this.events);
             var element = this.options.target;
             this.events.forEach(function (event) {
                 element.addEventListener(event, _this._eventHandler);
-            });
-            fetchDetector$1(function (isFetchIdle) {
-                isFetchIdle && _this._eventHandler();
             });
             this[_start]();
         }

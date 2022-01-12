@@ -20,10 +20,13 @@
       set interval and timeout faster
     </button>
     <button onclick="dispose()">dispose</button>
-
+    <br />
+    <br />
     <button onclick="ajaxRequestData()">mock ajax Request</button>
-    <button onclick="fetchData()">mock fetch some data</button>
-
+    <br />
+    <button onclick="fetchRequestData()">mock fetch request data</button>
+    <br />
+    <br />
     <button onclick="location.href = location.href">refresh this page</button>
 
     <div id="box"></div>
@@ -84,7 +87,7 @@
         }
       }
 
-      function fetchData() {
+      function fetchRequestData() {
         fetch(
           'https://img0.baidu.com/it/u=1585999933,2052014070&fm=253&fmt=auto&app=138&f=JPEG?w=658&h=370'
         )

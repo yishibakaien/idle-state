@@ -12,6 +12,8 @@ export default interface Options {
 
   enableMousemove: boolean
 
+  enableReqeustDetect: boolean
+
   events: Array<string>
 
   onPause(): void
