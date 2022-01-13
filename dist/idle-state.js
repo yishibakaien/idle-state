@@ -94,7 +94,7 @@
             });
         };
     };
-    var fetchDetector$1 = (function (cb) {
+    var requestDetector = (function (cb) {
         fetchDetector(cb);
     });
 
@@ -156,8 +156,8 @@
             if (this.options.enableMousemove) {
                 this.events.push('mousemove');
             }
-            if (this.options.enableMousemove) {
-                fetchDetector$1(function (isFetchIdle) {
+            if (this.options.enableReqeustDetect) {
+                requestDetector(function (isFetchIdle) {
                     isFetchIdle && _this._eventHandler();
                 });
             }

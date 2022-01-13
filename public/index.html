@@ -80,10 +80,16 @@
 
       function ajaxRequestData() {
         const xhr = new XMLHttpRequest()
-        xhr.open('GET', 'https://passport.baidu.com/viewlog', true)
+        xhr.open(
+          'GET',
+          'https://img0.baidu.com/it/u=1585999933,2052014070&fm=253&fmt=auto&app=138&f=JPEG?w=658&h=370',
+          true
+        )
         xhr.send()
         xhr.onreadystatechange = function () {
-          console.log(xhr.readyState)
+          if (xhr.readyState === 4) {
+            console.log('`hxr` request done.')
+          }
         }
       }
 
@@ -91,7 +97,9 @@
         fetch(
           'https://img0.baidu.com/it/u=1585999933,2052014070&fm=253&fmt=auto&app=138&f=JPEG?w=658&h=370'
         )
-          .then((res) => {})
+          .then((res) => {
+            console.log('`fetch` request done.')
+          })
           .catch((err) => {
             console.log(err)
           })

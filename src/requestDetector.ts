@@ -1,17 +1,12 @@
 
-interface Stroe {
-  count: number
-}
+import RequestStroeInterface from './interfaces/RequestStore'
+import CallbackInterface from './interfaces/Callback'
 
-interface callback {
-  (bol: boolean): void
-}
-
-const fetchDetector = (cb: callback) => {
+const fetchDetector = (cb: CallbackInterface) => {
 
   let count = 0
 
-  const store: Stroe = {
+  const store: RequestStroeInterface = {
     count
   }
   
@@ -58,6 +53,6 @@ const fetchDetector = (cb: callback) => {
   }
 }
 
-export default (cb: callback): void => {
+export default (cb: CallbackInterface): void => {
   fetchDetector(cb)
 }

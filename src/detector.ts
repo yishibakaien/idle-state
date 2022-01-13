@@ -8,7 +8,7 @@ import {
 } from './utils'
 
 import OptionsInterface from './interfaces/Options'
-import fetchDetector  from './fetchDetector'
+import requestDetector  from './requestDetector'
 
 const STATUS_START = 1
 const STATUS_PAUSE = 2
@@ -89,8 +89,8 @@ export default class Detector {
       this.events.push('mousemove')
     }
 
-    if (this.options.enableMousemove) {
-      fetchDetector((isFetchIdle) => {
+    if (this.options.enableReqeustDetect) {
+      requestDetector((isFetchIdle) => {
         isFetchIdle && this._eventHandler()
       })
     }
