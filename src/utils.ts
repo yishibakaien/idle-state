@@ -6,6 +6,8 @@ export const isObject = (obj?: any) =>
 export const isArray = (obj?: any) =>
   Object.prototype.toString.call(obj) === '[object Array]'
 
+export const isNodeElement = (target?: any) => target.nodeType === 1
+
 // unique array item
 export const uniqueArray = (arr?: any) => {
   if (!isArray(arr)) {

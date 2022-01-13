@@ -1,6 +1,6 @@
 import OptionsInterface from './interfaces/Options'
-import Detector from './detector'
+import IdleState from './idleState'
 
 export default function(task: any , options?: OptionsInterface) {
-  return new Detector(task, options)
+  return new IdleState(task, options)
 }

@@ -37,6 +37,7 @@
     var isArray = function (obj) {
         return Object.prototype.toString.call(obj) === '[object Array]';
     };
+    var isNodeElement = function (target) { return target.nodeType === 1; };
     // unique array item
     var uniqueArray = function (arr) {
         if (!isArray(arr)) {
@@ -53,6 +54,7 @@
     var next = function (callback) { return isFunction(callback) && callback(); };
     var noop = function () { };
 
+    var STATUS_XHR_DONE = 4;
     var fetchDetector = function (cb) {
         var count = 0;
         var store = {
@@ -69,13 +71,12 @@
         });
         var oldOpen = XMLHttpRequest.prototype.open;
         XMLHttpRequest.prototype.open = function () {
-            var _this = this;
             store.count++;
-            this.addEventListener('readystatechange', function () {
-                if (_this.readyState === 4) {
+            this.onreadystatechange = function () {
+                if (this.readyState === STATUS_XHR_DONE) {
                     store.count--;
                 }
-            }, false);
+            };
             oldOpen.apply(this, arguments);
         };
         var oldFetch = window.fetch;
@@ -98,6 +99,36 @@
         fetchDetector(cb);
     });
 
+    var EventDetector = /** @class */ (function () {
+        function EventDetector(target, events, callback) {
+            this.target = isNodeElement(target) ? [target] : target;
+            this.events = events;
+            this.callback = callback.bind(this);
+            this.eventHandler = this.handler.bind(this);
+            this.init();
+        }
+        EventDetector.prototype.init = function () {
+            var _this = this;
+            this.events.forEach(function (evt) {
+                _this.target.forEach(function (ele) {
+                    ele.addEventListener(evt, _this.eventHandler);
+                });
+            });
+        };
+        EventDetector.prototype.handler = function () {
+            this.callback();
+        };
+        EventDetector.prototype.dispose = function () {
+            var _this = this;
+            this.events.forEach(function (evt) {
+                _this.target.forEach(function (ele) {
+                    ele.removeEventListener(evt, _this.eventHandler);
+                });
+            });
+        };
+        return EventDetector;
+    }());
+
     var _a;
     var STATUS_START = 1;
     var STATUS_PAUSE = 2;
@@ -109,10 +140,10 @@
     var _run = Symbol('run');
     var _clearTimer = Symbol('clearTimer');
     var _eventHandler = Symbol('eventHandler');
-    var Detector = /** @class */ (function () {
-        function Detector(task, options) {
+    var IdleState = /** @class */ (function () {
+        function IdleState(task, options) {
             var _this = this;
-            this.events = [
+            this.defaultevents = [
                 'scroll',
                 'keydown',
                 'touchmove',
@@ -145,8 +176,11 @@
                 }
             }
             var events = options.events;
-            if (isArray(events)) {
-                this.events = this.events.concat(events);
+            if (isArray(events) && events.length > 0) {
+                this.events = events;
+            }
+            else {
+                this.events = this.defaultevents;
             }
             this.options = __assign({ target: document.body, timeout: 3000, interval: 1000, loop: false, enableMousemove: false, enableReqeustDetect: true, tasks: [], events: [], onDispose: noop, onPause: noop, onResume: noop }, options);
             /**
@@ -157,20 +191,18 @@
                 this.events.push('mousemove');
             }
             if (this.options.enableReqeustDetect) {
-                requestDetector(function (isFetchIdle) {
-                    isFetchIdle && _this._eventHandler();
+                requestDetector(function (isRequestIdle) {
+                    isRequestIdle && _this._eventHandler();
                 });
             }
             // remove repeat event
             this.events = uniqueArray(this.events);
             var element = this.options.target;
-            this.events.forEach(function (event) {
-                element.addEventListener(event, _this._eventHandler);
-            });
+            this.eventDetector = new EventDetector(element, this.events, this._eventHandler);
             this[_start]();
         }
         // controller of running tasks
-        Detector.prototype[(_a = _index, _run)] = function () {
+        IdleState.prototype[(_a = _index, _run)] = function () {
             var _b = this.options, tasks = _b.tasks, loop = _b.loop;
             if (this.status !== STATUS_START) {
                 return;
@@ -193,14 +225,14 @@
                 this[_start]();
             }
         };
-        Detector.prototype[_clearTimer] = function () {
+        IdleState.prototype[_clearTimer] = function () {
             if (this.timer) {
                 clearTimeout(this.timer);
                 this.timer = null;
             }
         };
         // start running tasks
-        Detector.prototype[_start] = function () {
+        IdleState.prototype[_start] = function () {
             var _this = this;
             this[_clearTimer]();
             var _b = this.options, interval = _b.interval, timeout = _b.timeout;
@@ -210,7 +242,7 @@
                 _this[_run]();
             }, time);
         };
-        Detector.prototype[_eventHandler] = function () {
+        IdleState.prototype[_eventHandler] = function () {
             this.isIdle = false;
             this[_start]();
         };
@@ -219,7 +251,7 @@
          * callback passed by this has a higher priority than options
          * @param {Function} cb
          */
-        Detector.prototype.pause = function (cb) {
+        IdleState.prototype.pause = function (cb) {
             if (this.status === STATUS_START) {
                 this.status = STATUS_PAUSE;
                 var callback = cb || this.options.onPause;
@@ -232,7 +264,7 @@
          * callback passed by this has a higher priority than options
          * @param {Function} cb
          */
-        Detector.prototype.resume = function (cb) {
+        IdleState.prototype.resume = function (cb) {
             if (this.status === STATUS_PAUSE) {
                 this.status = STATUS_START;
                 var callback = cb || this.options.onResume;
@@ -242,44 +274,40 @@
             }
         };
         // dispose the resource & remove events handler
-        Detector.prototype.dispose = function (cb) {
-            var _this = this;
+        IdleState.prototype.dispose = function (cb) {
             this.status = STATUS_STOP;
             this[_clearTimer]();
-            var element = this.options.target;
-            this.events.forEach(function (evt) {
-                element.removeEventListener(evt, _this._eventHandler);
-            });
+            this.eventDetector.dispose();
             var callback = cb || this.options.onDispose;
             next(callback);
         };
         // push a task
-        Detector.prototype.push = function (task) {
+        IdleState.prototype.push = function (task) {
             if (isFunction(task)) {
                 this.options.tasks.push(task);
             }
             return this;
         };
         // set tasks running timeout
-        Detector.prototype.timeout = function (timeout) {
+        IdleState.prototype.timeout = function (timeout) {
             this.options.timeout = timeout;
             return this;
         };
         // set tasks running interval
-        Detector.prototype.interval = function (interval) {
+        IdleState.prototype.interval = function (interval) {
             this.options.interval = interval;
             return this;
         };
         // set loop option
-        Detector.prototype.loop = function (value) {
+        IdleState.prototype.loop = function (value) {
             this.options.loop = value;
             return this;
         };
-        return Detector;
+        return IdleState;
     }());
 
     function index (task, options) {
-        return new Detector(task, options);
+        return new IdleState(task, options);
     }
 
     return index;

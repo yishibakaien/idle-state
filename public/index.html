@@ -22,7 +22,7 @@
     <button onclick="dispose()">dispose</button>
     <br />
     <br />
-    <button onclick="ajaxRequestData()">mock ajax Request</button>
+    <button onclick="xhrRequestData()">mock xhr Request</button>
     <br />
     <button onclick="fetchRequestData()">mock fetch request data</button>
     <br />
@@ -62,7 +62,7 @@
 
       function push() {
         const taskId = Math.random().toString(16).slice(-5)
-        a.push(() => ($box.innerHTML = 'do task ' + taskId))
+        a.push(() => ($box.innerHTML = 'do pushed task ' + taskId))
       }
       function stopLoop() {
         a.loop(false)
@@ -78,7 +78,7 @@
         a.dispose(() => ($box.innerHTML = 'disposed'))
       }
 
-      function ajaxRequestData() {
+      function xhrRequestData() {
         const xhr = new XMLHttpRequest()
         xhr.open(
           'GET',

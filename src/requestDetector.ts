@@ -2,6 +2,8 @@
 import RequestStroeInterface from './interfaces/RequestStore'
 import CallbackInterface from './interfaces/Callback'
 
+const STATUS_XHR_DONE = 4
+
 const fetchDetector = (cb: CallbackInterface) => {
 
   let count = 0
@@ -22,17 +24,13 @@ const fetchDetector = (cb: CallbackInterface) => {
 
   const oldOpen = XMLHttpRequest.prototype.open
 
-  XMLHttpRequest.prototype.open = function () {
+  XMLHttpRequest.prototype.open = function() {
     store.count++
-    this.addEventListener(
-      'readystatechange',
-      () => {
-        if (this.readyState === 4) {
-          store.count--
-        }
-      },
-      false
-    )
+    this.onreadystatechange = function() {
+      if (this.readyState === STATUS_XHR_DONE) {
+        store.count--
+      }
+    }
     oldOpen.apply(this, arguments)
   }
 

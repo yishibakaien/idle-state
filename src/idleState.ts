@@ -9,6 +9,7 @@ import {
 
 import OptionsInterface from './interfaces/Options'
 import requestDetector  from './requestDetector'
+import EventDetector from './eventDetector'
 
 const STATUS_START = 1
 const STATUS_PAUSE = 2
@@ -23,8 +24,8 @@ const _run = Symbol('run')
 const _clearTimer = Symbol('clearTimer')
 const _eventHandler = Symbol('eventHandler')
 
-export default class Detector {
-  protected events: string[] = [
+export default class IdleState {
+  protected defaultevents: string[] = [
     'scroll',
     'keydown',
     'touchmove',
@@ -32,10 +33,12 @@ export default class Detector {
     'click',
   ]
 
+  protected events: string[]
   protected options: OptionsInterface
   protected isIdle: boolean = false
   protected timer: ReturnType<typeof setTimeout> | null = null
   private status: number = STATUS_START
+  private eventDetector: EventDetector
   private [_index]: number = 0
   protected _eventHandler = this[_eventHandler].bind(this)
 
@@ -62,8 +65,10 @@ export default class Detector {
     }
 
     const { events } = options
-    if (isArray(events)) {
-      this.events = this.events.concat(events)
+    if (isArray(events) && events.length > 0) {
+      this.events = events
+    } else {
+      this.events = this.defaultevents
     }
 
     this.options = {
@@ -90,19 +95,21 @@ export default class Detector {
     }
 
     if (this.options.enableReqeustDetect) {
-      requestDetector((isFetchIdle) => {
-        isFetchIdle && this._eventHandler()
+      requestDetector((isRequestIdle) => {
+        isRequestIdle && this._eventHandler()
       })
     }
 
     // remove repeat event
     this.events = uniqueArray(this.events)
-
+    
     const element = this.options.target
 
-    this.events.forEach((event): void => {
-      element.addEventListener(event, this._eventHandler)
-    })
+    this.eventDetector = new EventDetector(
+      element,
+      this.events,
+      this._eventHandler
+    )
   
     this[_start]()
   }
@@ -199,10 +206,7 @@ export default class Detector {
   dispose(cb?: () => void): void {
     this.status = STATUS_STOP
     this[_clearTimer]()
-    const element = this.options.target
-    this.events.forEach((evt) => {
-      element.removeEventListener(evt, this._eventHandler)
-    })
+    this.eventDetector.dispose()
     const callback = cb || this.options.onDispose
     next(callback)
   }
