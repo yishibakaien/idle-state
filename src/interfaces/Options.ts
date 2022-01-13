@@ -10,9 +10,9 @@ export default interface Options {
 
   loop: boolean
 
-  enableMousemove: boolean
+  mousemoveDetect: boolean
 
-  enableReqeustDetect: boolean
+  reqeustDetect: boolean
 
   events: Array<string>
 

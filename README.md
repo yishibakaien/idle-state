@@ -76,12 +76,13 @@ The `idle` function has two arguments
   - `[Function]` - considered a single task
   - `[Function-array]` - considered a tasks-array
 - `options [Object]` - configuration of how task running
-  - `target [Element]` - the `target` would be watched, which determines whether the state is idling
+  - `target [Element | Element-Array]` - the `target` would be watched, which determines whether the state is idling
   - `tasks [Function-array]` - tasks-array
   - `timeout [Number]` - the duration after the browser enters the idle state, at which time the task begins to execute
   - `interval [Number]` - interval of task runing
   - `loop [Boolean]` - should task(s) runs loopy
-  - `enableMousemove [Boolean]` - should detect mousemove event. Mousemove events are frequently triggered in the browser, so put it configurable
+  - `mousemoveDetect [Boolean]` - should detect mousemove event. Mousemove events are frequently triggered in the browser, so put it configurable
+  - `reqeustDetect` [Boolean] - should detect requests(ajax or fetch) on browser
   - `events [EventName-array]` - name of events, which would be concated(merged) with default value (`scroll`, `keydown`, `touchmove`, `touchstart`, `click`)
   - `onPause [Function]` - called on tasks pause
   - `onResume [Function]` - called on tasks resume
@@ -98,7 +99,8 @@ const defaultOptions = {
   timeout: 3000,
   interval: 1000,
   loop: false,
-  enableMousemove: false,
+  mousemoveDetect: false,
+  reqeustDetect: true,
   events: ['scroll', 'keydown', 'touchmove', 'touchstart', 'click'],
   onPause: noop,
   onResume: noop,
@@ -194,7 +196,7 @@ instance.isIdle // => get a Boolean value
 ```
 
 it will get `false` while browser trigger event [`scroll`, `keydown`, `touchmove`, `touchstart`, `click`] by default, you can config `options.events`,
-which will merge default `options.events`
+which will replace default `options.events`
 
 # demo
 

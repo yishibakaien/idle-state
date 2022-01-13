@@ -76,8 +76,8 @@ export default class IdleState {
       timeout: 3000,
       interval: 1000,
       loop: false,
-      enableMousemove: false,
-      enableReqeustDetect: true,
+      mousemoveDetect: false,
+      reqeustDetect: true,
       tasks: [],
       events: [],
       onDispose: noop,
@@ -90,11 +90,11 @@ export default class IdleState {
      * mousemove events are frequently triggered in the browser,
      * so put it configurable
      */
-    if (this.options.enableMousemove) {
+    if (this.options.mousemoveDetect) {
       this.events.push('mousemove')
     }
 
-    if (this.options.enableReqeustDetect) {
+    if (this.options.reqeustDetect) {
       requestDetector((isRequestIdle) => {
         isRequestIdle && this._eventHandler()
       })

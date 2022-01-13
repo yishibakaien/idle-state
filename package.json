@@ -1,6 +1,6 @@
 {
   "name": "idle-state",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Running some tasks while browser idling",
   "main": "./dist/idle-state.min.js",
   "files": [

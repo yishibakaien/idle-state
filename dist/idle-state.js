@@ -182,15 +182,15 @@
             else {
                 this.events = this.defaultevents;
             }
-            this.options = __assign({ target: document.body, timeout: 3000, interval: 1000, loop: false, enableMousemove: false, enableReqeustDetect: true, tasks: [], events: [], onDispose: noop, onPause: noop, onResume: noop }, options);
+            this.options = __assign({ target: document.body, timeout: 3000, interval: 1000, loop: false, mousemoveDetect: false, reqeustDetect: true, tasks: [], events: [], onDispose: noop, onPause: noop, onResume: noop }, options);
             /**
              * mousemove events are frequently triggered in the browser,
              * so put it configurable
              */
-            if (this.options.enableMousemove) {
+            if (this.options.mousemoveDetect) {
                 this.events.push('mousemove');
             }
-            if (this.options.enableReqeustDetect) {
+            if (this.options.reqeustDetect) {
                 requestDetector(function (isRequestIdle) {
                     isRequestIdle && _this._eventHandler();
                 });
