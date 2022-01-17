@@ -1,3 +1,5 @@
+[中文文档](./README-CN.md)
+
 # introduce
 
 A library for detecting idle state of browser. None dependency, size of 4.7kb. With powerful APIs. -- inspired by `idle-timeout`.
