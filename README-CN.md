@@ -1,4 +1,4 @@
-[English Doc](./README.md) | [中文文档](./README-CN.md)
+[English doc](./README.md) | [中文文档](./README-CN.md)
 
 # 介绍
 
@@ -82,6 +82,12 @@ idle(task1, { tasks: [task2] })
 # 参数文档
 
 `idle` 方法有两个参数
+
+```js
+import idle from 'idle-state'
+
+idle(callback, options)
+```
 
 - `callback` - 可以是一个方法或者是方法数组
   - `[Function]` - 被认为是一个任务

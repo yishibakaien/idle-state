@@ -1,4 +1,4 @@
-[English Doc](./README.md) | [中文文档](./README-CN.md)
+[English doc](./README.md) | [中文文档](./README-CN.md)
 
 # introduce
 
@@ -73,6 +73,12 @@ idle(task1, { tasks: [task2] })
 # document
 
 The `idle` function has two arguments
+
+```js
+import idle from 'idle-state'
+
+idle(callback, options)
+```
 
 - `callback` - can be a function or function-array
   - `[Function]` - considered a single task
