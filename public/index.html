@@ -5,38 +5,81 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>demo</title>
+    <style>
+      .container {
+        display: flex;
+      }
+      /* .container div {
+      } */
+      .left {
+        padding: 40px;
+      }
+      .right {
+        padding: 20px;
+        border-left: 1px solid #ddd;
+      }
+    </style>
   </head>
   <body style="height: 100vh">
-    <div>
-      While click this page, it will trigger `click` event, then task will pause
-      for a while.
-    </div>
-    <button onclick="pause()">pause</button>
-    <button onclick="resume()">resume</button>
-    <button onclick="push()">push task</button>
-    <button onclick="stopLoop()">stop loop</button>
-    <button onclick="getIdleState()">get current idle state</button>
-    <button onclick="setIntervalAndTimeout()">
-      set interval and timeout faster
-    </button>
-    <button onclick="dispose()">dispose</button>
-    <br />
-    <br />
-    <button onclick="xhrRequestData()">mock xhr Request</button>
-    <br />
-    <button onclick="fetchRequestData()">mock fetch request data</button>
-    <br />
-    <br />
-    <button onclick="location.href = location.href">refresh this page</button>
+    <div class="container">
+      <div class="left">
+        <h3>
+          On click this page, it will trigger `click` event,<br />
+          browser will out of `idle state` for 2 seconds.<br />
+          Then task will pause 2 seconds too.
+        </h3>
+        <button onclick="pause()">pause</button>
+        <button onclick="resume()">resume</button>
+        <br />
+        <br />
+        <button onclick="push()">push task</button>
+        <br />
+        <br />
+        <button onclick="stopLoop()">unloop</button>
 
-    <div id="box"></div>
+        <button onclick="setIntervalAndTimeout()">
+          set interval and timeout faster
+        </button>
+        <button onclick="dispose()">dispose</button>
+        <br />
+        <br />
+        <h4>see at console</h4>
+        <button onclick="getIdleState()">get current idle state</button>
+        <button onclick="xhrRequestData()">mock xhr Request</button>
+        <button onclick="fetchRequestData()">mock fetch request data</button>
+        <br />
+        <br />
+        <br />
+        <button onclick="location.href = location.href">
+          refresh this page
+        </button>
+      </div>
+      <div class="right">
+        <h3 style="display: none">
+          Browser status:
+          <span id="status" style="color: green; font-size: 30px">idling</span>
+        </h3>
+
+        <h3>
+          Task runing status:
+          <span id="status2" style="color: green; font-size: 30px">runing</span>
+        </h3>
+        <br />
+        <h4>Tasks runing detail:</h4>
+        <div id="box"></div>
+      </div>
+    </div>
+
     <script src="/dist/idle-state.js"></script>
     <script>
       const $box = document.querySelector('#box')
+      const $status = document.querySelector('#status')
+
+      const $status2 = document.querySelector('#status2')
 
       const a = idle(
         () => {
-          $box.innerHTML = 'do task 0'
+          $box.innerHTML = 'I am task 0'
         },
         {
           loop: true,
@@ -44,29 +87,36 @@
           interval: 500,
           // enableMousemove: true,
           tasks: [
-            () => ($box.innerHTML = 'do task 1'),
-            () => ($box.innerHTML = 'do task 2'),
+            () => ($box.innerHTML = 'I am task 1'),
+            () => ($box.innerHTML = 'I am task 2'),
+            () => ($box.innerHTML = 'I am task 3'),
           ],
-          onDispose() {
-            $box.innerHTML = 'task disposed'
-          },
         }
       )
 
       function pause() {
-        a.pause()
+        a.pause(() => {
+          $status2.style.color = '#999'
+          $status2.innerHTML = 'pause'
+        })
       }
       function resume() {
-        a.resume()
+        a.resume(() => {
+          $status2.style.color = 'green'
+          $status2.innerHTML = 'runing'
+        })
       }
 
+      let taskId = 0
       function push() {
-        const taskId = Math.random().toString(16).slice(-5)
-        a.push(() => ($box.innerHTML = 'do pushed task ' + taskId))
+        taskId++
+        const str = 'I am pushed task ' + taskId
+        a.push(() => ($box.innerHTML = str))
       }
       function stopLoop() {
         a.loop(false)
       }
+
       function getIdleState() {
         console.log(a.isIdle)
       }
@@ -76,6 +126,8 @@
       }
       function dispose() {
         a.dispose(() => ($box.innerHTML = 'disposed'))
+        $status2.style.color = 'black'
+        $status2.innerHTML = 'tasks disposed'
       }
 
       function xhrRequestData() {
