@@ -2,11 +2,12 @@
 
 # introduce
 
-A library for detecting idle state of browser. None dependency, size of 4.7kb. With powerful APIs. -- inspired by `idle-timeout`.
+A library for detecting idle state of browser. Zero dependency, size of 4.7kb. With powerful APIs. -- inspired by `idle-timeout`.
 
 # what I can do
 
-Running some tasks while browser idling
+- running some tasks while browser idling
+- auto pause/resume task(s)
 
 # install
 
